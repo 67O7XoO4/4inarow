@@ -1,0 +1,28 @@
+{
+  "name": "4inarow",
+  "version": "1.0.0",
+  "description": "4 in a row game",
+  "main": "4inarow.js",
+  "scripts": {
+    "dev": "browser-sync start -s -w",
+    "test": "node_modules/.bin/jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/67O7XoO4/4inarow.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/67O7XoO4/4inarow/issues"
+  },
+  "homepage": "https://github.com/67O7XoO4/4inarow#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/register": "^7.12.1",
+    "jasmine": "^3.6.2"
+  },
+  "dependencies": {}
+}
