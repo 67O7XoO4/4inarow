@@ -1,6 +1,6 @@
 
 //Empty cell
-const EMPTY = { color : "rgb(210, 210, 210)", name : '-'};
+const EMPTY = { color : "rgb(245, 245, 245)", name : '-'};
 
 const config = {
     nbCellsToWin: 4,
@@ -59,7 +59,7 @@ class Column {
 class BoardModel {
     selectedColumn = null;
     columns = null;
-    lastPlayedCell = null;
+    playedCells = [];
 
     constructor(){
         //fill board with columns
@@ -74,9 +74,10 @@ class BoardModel {
             otherBoard.columns[column.num].cells[cell.num].value = cell.value;
         });
         
-        if (this.lastPlayedCell){
-            otherBoard.lastPlayedCell = otherBoard.columns[this.lastPlayedCell.column.num].cells[this.lastPlayedCell.num]
-        }
+        this.playedCells.forEach((cell)=>{
+            otherBoard.playedCells.push(otherBoard.columns[cell.column.num].cells[cell.num]);
+        }) ;
+
         return otherBoard;
     }
 
@@ -98,6 +99,7 @@ class BoardModel {
         //empty the board
         this.forEachCell((column, cell)=>{
             this.columns[column.num].cells[cell.num].value = EMPTY;
+            this.columns[column.num].cells[cell.num].isWinning = false;
         });
 
         //forEach Right
@@ -113,7 +115,47 @@ class BoardModel {
             rowNum++;
         }
         this.selectedColumn =null;
-        this.lastPlayedCell = null;
+        this.playedCells = [];
+    }
+
+    clearAll(){
+        this.init([[]]);
+    }
+
+    key(){
+        let key = "";
+        this.forEachCell((column, cell)=>{
+            key += cell.value.name;
+        });
+        return key;
+    }
+
+    getLastPlayedCell(){
+        if(this.playedCells.length == 0) return null;
+        return  this.playedCells[this.playedCells.length - 1];
+    }
+
+    undoLastPlay(){
+
+        let isWinning = this.checkIfLastPlayWin();
+        let cell = this.playedCells.pop();
+        cell.value = EMPTY;
+
+        if (isWinning){
+            this.forEachCell((column, cell)=>{
+                this.columns[column.num].cells[cell.num].isWinning = false;
+            });    
+            return true;
+        }
+
+
+        return false;
+    }
+
+    isEmpty(){
+        return  this.columns.every((column)=>{
+            return column.isEmpty();
+        });
     }
 
     /**
@@ -155,7 +197,7 @@ class BoardModel {
         }else{
             throw "Can't play on complete column : "+column.num;
         }
-        this.lastPlayedCell = foundCell;
+        this.playedCells.push(foundCell);
     }
 
     isComplete(){
@@ -168,11 +210,11 @@ class BoardModel {
     checkIfLastPlayWin(){
         // vertical
         let i=0;
-        let cellToTest = this.lastPlayedCell;
+        let cellToTest = this.getLastPlayedCell();
         let winningCells = [];
 
         for(; i<config.nbCellsToWin; i++){
-            if (!cellToTest || cellToTest.value != this.lastPlayedCell.value){
+            if (!cellToTest || cellToTest.value != this.getLastPlayedCell().value){
                 break;
             }
             winningCells.push(cellToTest);  
@@ -184,16 +226,16 @@ class BoardModel {
         }
         
         //horizontal
-        if (this._checkHorizontal(this.lastPlayedCell, this.getLeftSibling, this.getRightSibling)){
+        if (this._checkHorizontal(this.getLastPlayedCell(), this.getLeftSibling, this.getRightSibling)){
             return true;
         }
         //diag bottom to up
-        if (this._checkHorizontal(this.lastPlayedCell, this.getLeftPreviousSibling, this.getRightNextSibling)){
+        if (this._checkHorizontal(this.getLastPlayedCell(), this.getLeftPreviousSibling, this.getRightNextSibling)){
             return true;
         }
 
         //diag up to bottom
-        if (this._checkHorizontal(this.lastPlayedCell, this.getLeftNextSibling, this.getRightPreviousSibling)){
+        if (this._checkHorizontal(this.getLastPlayedCell(), this.getLeftNextSibling, this.getRightPreviousSibling)){
             return true;
         }
         return false;

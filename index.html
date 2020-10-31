@@ -2,21 +2,140 @@
 <html>
   <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4 in a ROW</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" >
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+    <script type="module" src="./src/4inarow.js"></script>
+
     <style type="text/css">
-    .canvas {
-      background-color: rgb(210, 210, 210); 
+    .user-card.mdl-card {
+      width: 220px; 
+      min-height : 0;
+      margin-bottom: 20px;
+      padding-bottom: 0;
+    }
+
+    .wide-card.mdl-card {
       
+      margin: 20px;
+      width: 500px; 
+      background-color: rgb(245, 245, 245); 
+    }
+
+    .player-name{
+      border-left: 10px solid;
     }
    </style>
+   <script type="text/x-template" id="user-board-template">
+    
+      <div class="user-card mdl-grid mdl-card "
+          v-bind:class="{'mdl-shadow--4dp' : isCurrentPlayer }">
+        <div class="mdl-cell mdl-cell--12-col">
+          <span class="player-name" v-bind:style="{color : player.color}"  >{{player.name}}</span>
+        </div>
+
+        <div class="mdl-cell mdl-cell--4-col">
+          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" 
+                v-bind:for="player.name" 
+                title="Change human/computer player">
+            <input type="checkbox" 
+                v-bind:id="player.name" class="mdl-switch__input"
+                v-bind:checked="player.isHuman()" 
+                v-on:change="changeStrategy">
+            <span class="mdl-switch__label">
+              <i v-if="player.isHuman()" title="Played by a human"
+                  class="material-icons">person</i>
+              <i v-if="! player.isHuman()" title="Played by the computer" class="material-icons">computer</i>
+            </span>
+          </label>
+        </div>
+        <div class="mdl-cell mdl-cell--7-col" v-show="! player.isHuman()">
+            <input 
+                class="mdl-slider mdl-js-slider" type="range"  min="1" max="10" v-model="player.strategy.depth" tabindex="0">
+        </div>
+        <div class="mdl-cell mdl-cell--1-col" v-show="! player.isHuman()">
+          <span class="mdl-badge mdl-badge--overlap" v-bind:data-badge="player.strategy.depth" 
+                v-bind:title="player.strategy.depth" v-show="! player.isHuman()">
+          </span>
+      </div>
+
+        <div v-show="! player.isHuman()"  class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+          
+      </div>
+      
+  </script>
   </head>
   <body>
 
-    <canvas id="boardCanvas" class="canvas" width="700" height="700"></canvas>
-<!--   
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.19/lodash.min.js" ></script> -->
-    <script type="module" src="./src/4inarow.js"></script>
+    <div id="fourInARowApp" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title"><h4>{{title}}</h4></span>
+        
+        
+        <div class="mdl-grid">
+          
+          <div class="mdl-cell mdl-cell--1-col">
+            <!-- Play again/Restart -->
+            <button v-on:click="start"
+            title="Let's try again"
+            class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
+            v-if="boardModel.isComplete()">
+            <i class="material-icons md-36">Play again</i>
+            </button>
+          </div>
+          
+          <div class="mdl-cell mdl-cell--1-col">
+             <!-- Reset game -->
+            <button v-on:click="start"
+                title="Reset the current game"
+                class="mdl-button mdl-js-button mdl-button--text mdl-button--colored"
+                v-if=" ! boardModel.isComplete()">
+                <i class="">RESET</i>
+            </button>
+          </div>
+          
+          <div class="mdl-cell mdl-cell--8-col">
+          </div>
+          
+          <div class="mdl-cell mdl-cell--1-col">
+             <!-- UNDO -->
+            <button v-on:click="undo"
+              title="Undo last move"
+              class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
+              :disabled="isUndoDisabled">
+              <i class="material-icons md-36">undo</i>
+            </button>
+          </div>
+
+        </div>
+        
+        <user-board v-bind:player='players[0]'></user-board>
+        
+        <user-board v-bind:player='players[1]'></user-board>
+
+      </div>
+      <main class="mdl-layout__content">
+        
+        <div class="page-content">
+          <div class="wide-card mdl-card mdl-shadow--2dp">
+            <canvas id="boardCanvas" width="500" height="450"></canvas>
+          </div>
+        </div>
+
+        <div id="snackbarmsg" class="mdl-js-snackbar mdl-snackbar">
+          <div class="mdl-snackbar__text"></div>
+          <button class="mdl-snackbar__action" type="button"></button>
+        </div>
+       
+
+      </main>
+    </div>
 
   </body>
 </html>

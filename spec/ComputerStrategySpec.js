@@ -1,17 +1,17 @@
 import * as BoardModel from '../src/BoardModel.js';
-import * as ComputerPlayer from '../src/ComputerPlayer.js';
+import * as ComputerStrategy from '../src/ComputerStrategy.js';
 import * as Player from '../src/Player.js';
 
 const sevenTimes = [0,1,2,3,4,5,6];
-const PlayerScore = ComputerPlayer.SAME_PLAYER_CELL_SCORE;
-const emtpyScore = ComputerPlayer.EMTPY_CELL_SCORE;
+const PlayerScore = ComputerStrategy.SAME_PLAYER_CELL_SCORE;
+const emtpyScore = ComputerStrategy.EMTPY_CELL_SCORE;
 
-describe("ComputerPlayer", ()=> {
+describe("ComputerStrategy", ()=> {
 
     let boardModel = new BoardModel.BoardModel();
 
-    let cp = new ComputerPlayer.ComputerPlayer("cp");
-    let p2 = new Player.Player("p2");
+    let cp = new Player.Player("cp", false);
+    let p2 = new Player.Player("p2", true);
     cp.setNextPlayer(p2);
 
     let score = 0;
@@ -39,11 +39,11 @@ describe("ComputerPlayer", ()=> {
 
         //evaluate each cell
         sevenTimes.forEach((i)=>{
-            expect(ComputerPlayer.evaluateCell(boardModel.columns[i].cells[0], boardModel, cp)).toBe(scores[i]);
-            expect(ComputerPlayer.evaluateCell(boardModel.columns[i].cells[0], boardModel, p2)).toBe(scores[i]);    
+            expect(ComputerStrategy.evaluateCell(boardModel.columns[i].cells[0], boardModel, cp)).toBe(scores[i]);
+            expect(ComputerStrategy.evaluateCell(boardModel.columns[i].cells[0], boardModel, p2)).toBe(scores[i]);    
         });
         //evaluate board
-        expect(ComputerPlayer.evaluate(boardModel, p2)).toBe(scores.reduce((sum, score)=>sum+score, 0));
+        expect(ComputerStrategy.evaluate(boardModel, p2)).toBe(scores.reduce((sum, score)=>sum+score, 0));
 
         //play on column #3
         boardModel.play(boardModel.columns[3], cp);
@@ -67,10 +67,10 @@ describe("ComputerPlayer", ()=> {
 
         //evaluate each cell for computer player
         sevenTimes.forEach((i)=>{
-            expect(ComputerPlayer.evaluateCell(boardModel.columns[i].cells[0], boardModel, cp)).toBe(scores[i]);
+            expect(ComputerStrategy.evaluateCell(boardModel.columns[i].cells[0], boardModel, cp)).toBe(scores[i]);
         });
         //evaluate board
-        expect(ComputerPlayer.evaluate(boardModel, cp)).toBe(scores.reduce((sum, score)=>sum+score, 0));
+        expect(ComputerStrategy.evaluate(boardModel, cp)).toBe(scores.reduce((sum, score)=>sum+score, 0));
 
         
         scores = [];
@@ -92,10 +92,10 @@ describe("ComputerPlayer", ()=> {
 
         //evaluate each cell for p2 player
         sevenTimes.forEach((i)=>{
-            expect(ComputerPlayer.evaluateCell(boardModel.columns[i].cells[0], boardModel, p2)).toBe(scores[i]);    
+            expect(ComputerStrategy.evaluateCell(boardModel.columns[i].cells[0], boardModel, p2)).toBe(scores[i]);    
         });
         //evaluate board
-        expect(ComputerPlayer.evaluate(boardModel, p2)).toBe(scores.reduce((sum, score)=>sum+score, 0));
+        expect(ComputerStrategy.evaluate(boardModel, p2)).toBe(scores.reduce((sum, score)=>sum+score, 0));
     });
 
     it("should be able to be evaluate almost complete column", ()=>{
@@ -113,7 +113,7 @@ describe("ComputerPlayer", ()=> {
         // column #0 :      0    +      3   +   3 
         score = emtpyScore * (0 + 3 + 3);
 
-        expect(ComputerPlayer.evaluateCell(boardModel.columns[0].cells[5], boardModel, cp)).toBe(score);
+        expect(ComputerStrategy.evaluateCell(boardModel.columns[0].cells[5], boardModel, cp)).toBe(score);
 
         
         boardModel.init( [ 
@@ -129,7 +129,7 @@ describe("ComputerPlayer", ()=> {
         // column #0 :      0    +      3   +   3 
         score = emtpyScore * (0 + 6 + 6);
 
-        expect(ComputerPlayer.evaluateCell(boardModel.columns[3].cells[5], boardModel, cp)).toBe(score);
+        expect(ComputerStrategy.evaluateCell(boardModel.columns[3].cells[5], boardModel, cp)).toBe(score);
     });
 
 
@@ -138,7 +138,7 @@ describe("ComputerPlayer", ()=> {
         boardModel.init( [ 
             [0, cp, cp, cp]
         ]);
-        expect(cp.pickColumn(boardModel, 1)).toBe(0);
+        expect(cp.strategy.pickColumn(boardModel, 1)).toBe(0);
         
         boardModel.init( [ 
             [0, cp],
@@ -146,7 +146,7 @@ describe("ComputerPlayer", ()=> {
             [0, cp],
         ]);
 
-        expect(cp.pickColumn(boardModel, 1)).toBe(1);
+        expect(cp.strategy.pickColumn(boardModel, 1)).toBe(1);
 
         boardModel.init( [ 
             [ 0,  0, cp, p2],
@@ -154,7 +154,7 @@ describe("ComputerPlayer", ()=> {
             [cp, p2, p2, p2],
         ]);
 
-        expect(cp.pickColumn(boardModel, 1)).toBe(3);
+        expect(cp.strategy.pickColumn(boardModel, 1)).toBe(3);
 
     });
 
@@ -163,7 +163,7 @@ describe("ComputerPlayer", ()=> {
         boardModel.init( [ 
             [p2, p2, p2]
         ]);
-        expect(cp.pickColumn(boardModel, 2)).toBe(3);
+        expect(cp.strategy.pickColumn(boardModel, 2)).toBe(3);
         
         boardModel.init( [ 
             [0, p2],
@@ -171,7 +171,7 @@ describe("ComputerPlayer", ()=> {
             [0, p2],
         ]);
 
-        expect(cp.pickColumn(boardModel, 2)).toBe(1);
+        expect(cp.strategy.pickColumn(boardModel, 2)).toBe(1);
 
         boardModel.init( [ 
             [ 0,  0, p2, cp],
@@ -179,7 +179,7 @@ describe("ComputerPlayer", ()=> {
             [p2, cp, p2, p2],
         ]);
 
-        expect(cp.pickColumn(boardModel,2)).toBe(3);
+        expect(cp.strategy.pickColumn(boardModel,2)).toBe(3);
 
     });
 
@@ -192,7 +192,7 @@ describe("ComputerPlayer", ()=> {
             [ 0, cp],
             [p2, p2, p2, 0, ]
         ]);
-        expect(cp.pickColumn(boardModel, 2)).toBe(1);
+        expect(cp.strategy.pickColumn(boardModel, 2)).toBe(1);
 
         boardModel.init( [ 
             [ 0,  0, p2, cp],
@@ -200,7 +200,7 @@ describe("ComputerPlayer", ()=> {
             [p2, cp, cp, cp],
         ]);
 
-        expect(cp.pickColumn(boardModel, 2)).toBe(4);
+        expect(cp.strategy.pickColumn(boardModel, 2)).toBe(4);
     });
 
     
@@ -212,7 +212,7 @@ describe("ComputerPlayer", ()=> {
             [ cp, 0, cp, cp, p2],
             [ p2, 0, cp, p2, cp]
         ]);
-        expect(cp.pickColumn(boardModel, 3)).toBe(1);
+        expect(cp.strategy.pickColumn(boardModel, 3)).toBe(1);
 
     });
 });

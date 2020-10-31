@@ -1,14 +1,9 @@
-import * as Player from './Player.js';
 
-class HumanPlayer extends Player.Player {
+class HumanStrategy  {
 
     constructor(){
-        super();
+        this.isHuman = true;
     }
-    
-    isHuman(){
-        return true;
-    };
 
     atYourTurn(model, board,  canvasConfig, mousePos){
     
@@ -30,18 +25,32 @@ class HumanPlayer extends Player.Player {
             };
             canvasConfig.boardCanvas.addEventListener('mousemove', mousemove, false);
         
-            let click = ()=> {
-                if (model.selectedColumn){
-                    canvasConfig.boardCanvas.removeEventListener('mousemove', mousemove, false);
-                    canvasConfig.boardCanvas.removeEventListener('click', click, false);
-                    
-                    //current player has played, let's see if he wins 
+            let removeEventListeners = (isInterrupted)=>{
+                canvasConfig.boardCanvas.removeEventListener('mousemove', mousemove, false);
+                canvasConfig.boardCanvas.removeEventListener('click', click, false);
+                if(isInterrupted){
+                    reject();
+                }else{
                     resolve();
                 }
             };
+            this.removeEventListeners = removeEventListeners;
+
+            let click = ()=> {
+                if (model.selectedColumn){
+
+                    //current player has played, let's see if he wins 
+                    removeEventListeners(false);
+                }
+            };
+
             canvasConfig.boardCanvas.addEventListener('click', click, false);
         });
     } 
+
+    interrupt(){
+        this.removeEventListeners(true);
+    }
 };
 
-export {HumanPlayer};
+export {HumanStrategy};

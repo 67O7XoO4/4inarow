@@ -1,4 +1,3 @@
-import * as Player from './Player.js';
 
 const MAX_SCORE = 1000;
 const CANT_PLAY_SCORE = MAX_SCORE + 1;
@@ -7,27 +6,35 @@ const EVEN_SCORE = 0;
 const EMTPY_CELL_SCORE = 1;
 const SAME_PLAYER_CELL_SCORE = 4;
 
-class ComputerPlayer extends Player.Player {
+let cachedScores = [];
+
+class ComputerStrategy  {
 
     /**
      * 
      */
-    depth = 6 ; 
+    depth = 5 ; 
  
-    constructor(name){
-        super(name);
+    constructor(player){
+        this.isHuman = false;
+        this.player = player;
     }
 
-    isHuman(){
-        return false;
-    };
-
     atYourTurn(model){
+        let promise = new Promise((resolve) => {
+            setTimeout(()=>{
+                model.setSelectedColumn(this.pickColumn(model,  this.depth));
 
-        model.setSelectedColumn(this.pickColumn(model,  this.depth));
+                return resolve();
+            }, 10);
+        });
 
-        return Promise.resolve();
+        return promise;
     };
+
+    interrupt(){
+        //this.interrupted = true;
+    }
 
     /**
      * 
@@ -35,7 +42,8 @@ class ComputerPlayer extends Player.Player {
      */
     pickColumn(model, depth){
 
-        let selection = minMax( model.clone(), this, this.nextPlayer, depth);
+        cachedScores = [];
+        let selection = minMax( model.clone(), this.player, this.player.nextPlayer, depth);
         
         return selection.num;
     }
@@ -59,19 +67,19 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth){
     //evaluation of the last move (of the current player)
     
     //is last move a win ?
-    if (model.lastPlayedCell && model.checkIfLastPlayWin()){
+    if (model.getLastPlayedCell() && model.checkIfLastPlayWin()){
         return {score: MAX_SCORE * currentPlayerCoeff, 
-                num : model.lastPlayedCell.column.num};
+                num : model.getLastPlayedCell().column.num};
 
     }else if (model.isComplete()){
         //even game
         return {score: EVEN_SCORE , 
-                num : model.lastPlayedCell.column.num};
+                num : model.getLastPlayedCell().column.num};
 
     }else  if(currentDepth === 0 ){
         // evaluate the state of the game for the current Player
         return {score: evaluate(model, currentPlayer) * currentPlayerCoeff ,
-                num : model.lastPlayedCell.column.num};
+                num : model.getLastPlayedCell().column.num};
 
     } else {
 
@@ -92,27 +100,34 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth){
             };
         }
 
-        //go deeper
-        return model.columns.reduce((currentSelection, column)=>{
-            let columnScore=null;
+        let scoreKey = model.key()+currentPlayer.name;
+        let cachedScore = cachedScores[scoreKey];
+        if ( ! cachedScore){
+            //go deeper
+            cachedScore =  model.columns.reduce((currentSelection, column)=>{
+                let columnScore=null;
 
-            if(! column.isComplete()){
-            
-                model.play(column, currentPlayer.nextPlayer);
-                columnScore = minMax(model, playerToBeEvaluated, currentPlayer.nextPlayer, currentDepth - 1).score;
-                column.removeLastPlay();
-            
-            }else{
-                //don't play on complete column
-                columnScore = initialScore;
-            }
-            
-            //console.log('minMax:', currentPlayer.nextPlayer.name, column.num,"=" ,columnScore, "depth=",currentDepth);
-            
-            return  minOrMax(columnScore, currentSelection.score) ? 
-                        {score: columnScore, num : column.num} : currentSelection;
+                if(! column.isComplete()){
+                
+                    model.play(column, currentPlayer.nextPlayer);
+                    columnScore = minMax(model, playerToBeEvaluated, currentPlayer.nextPlayer, currentDepth - 1).score;
+                    column.removeLastPlay();
+                
+                }else{
+                    //don't play on complete column
+                    columnScore = initialScore;
+                }
+                
+                //console.log('minMax:', currentPlayer.nextPlayer.name, column.num,"=" ,columnScore, "depth=",currentDepth);
+                
+                return  minOrMax(columnScore, currentSelection.score) ? 
+                            {score: columnScore, num : column.num} : currentSelection;
 
-        }, {score: initialScore, num : 0});//initial selection
+            }, {score: initialScore, num : 0});//initial selection
+
+            cachedScores[scoreKey] = cachedScore;
+        }
+        return cachedScore;
     }
 };
 
@@ -226,7 +241,7 @@ function evaluateDirection(cell, model, playerToBeEvaluated, left, right){
 
 
 export {
-    ComputerPlayer, 
+    ComputerStrategy, 
     //for unit testing only
     evaluate,
     evaluateCell, 

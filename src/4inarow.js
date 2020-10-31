@@ -1,12 +1,11 @@
 import * as Board from './Board.js';
-import * as HumanPlayer from './HumanPlayer.js';
-import * as ComputerPlayer from './ComputerPlayer.js';
+import * as Player from './Player.js';
 
-const RED = {   color : "rgb(255, 100, 100)", name : "RED"   };
+const RED_CONFIG = {   color : "rgb(255, 100, 100)", name : "RED"   };
 
-const YELLOW = { color : "rgb(255, 255, 0)" , name : "YELLOW"  };
+const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , name : "YELLOW"  };
 
-
+let players = [];
 let currentPlayer = null;
 
 let board = new Board.Board();
@@ -15,20 +14,6 @@ let board = new Board.Board();
 // canvas config (Size,...). These get updated after browser loading.
 let canvasConfig = {};
 let mousePos = {x: 0, y:0, out: true}; //out = mouse over or not
-
-
-/**
- * 
- * @param {*} player 
- * @param {*} isHuman 
- */
-function initPlayer(playerConfig, isHuman){
-    let player = new ComputerPlayer.ComputerPlayer();
-    if (isHuman){
-        player = new HumanPlayer.HumanPlayer();
-    } 
-    return Object.assign(player, playerConfig);
-}
 
 
 /**
@@ -56,17 +41,25 @@ function play(boardModel){
 
     if ( boardModel.checkIfLastPlayWin()){
         //
+        displayMsg(currentPlayer.name + ' win !!');
+
     }else if ( boardModel.isComplete()){
         //even game
-
+        displayMsg('Even game :(');
+        
     }else{
         //next  
         currentPlayer = currentPlayer.nextPlayer;
-
-        currentPlayer.atYourTurn(boardModel, board, canvasConfig, mousePos)
-        //when ready, play the next move
-        .then(()=> play(boardModel) );
+        nextMove(boardModel);
     }
+}
+
+function nextMove(boardModel){
+
+    currentPlayer.atYourTurn(boardModel, board, canvasConfig, mousePos)
+    //when ready, play the next move
+    .then(()=> play(boardModel) );
+
 }
 
 // Main animation loop
@@ -79,19 +72,88 @@ function animationLoop() {
     window.requestAnimationFrame(animationLoop);
 }
 
-//bootstrap
-window.onload = () => {
+function displayMsg(msg){
+    
+    let snackbarContainer = document.querySelector('#snackbarmsg');
+    var data = {message: msg};
+    snackbarContainer.MaterialSnackbar.showSnackbar(data);
+}
 
-    currentPlayer = initPlayer(RED, true);
-    currentPlayer.setNextPlayer(initPlayer(YELLOW, false));
+
+players.push(new Player.Player(RED_CONFIG, true));
+players.push(new Player.Player(YELLOW_CONFIG, false));
+
+currentPlayer = players[0];
+currentPlayer.setNextPlayer(players[1]);
+
+
+
+Vue.component('user-board', {
+    template: '#user-board-template',
+    props: ['player'],
+    computed: {
+        isCurrentPlayer : function(){
+            return this.player === currentPlayer;
+        },
+    },
+    methods : {
+        changeStrategy : function(){
+            this.player.changeStrategy();
+        },
+    }
+     ,
+})
+
+var fourInARowApp = new Vue({
+    el: '#fourInARowApp',
+    data: {
+    title: '4 In a Row !!',
+    players: players,
+    boardModel : board.model
+    },
+    computed: {
+        isUndoDisabled() {
+          return board.model.isEmpty();
+        }
+    },
+
+    methods: {
+        undo: function () {
+
+            currentPlayer.interrupt();
+
+            let wasWinning = board.model.undoLastPlay();
+            
+            if (wasWinning){
+                //restart the game
+                nextMove(board.model);
+            }else{
+                currentPlayer = currentPlayer.nextPlayer;
+            }
+        },
+        start: function () {
+            
+            currentPlayer.interrupt();
+            
+            board.model.clearAll();
+            //restart the game
+            nextMove(board.model);
+
+            displayMsg('New game started. ' + currentPlayer.name + ' to play');
+        },
+    }
+})
+
+//bootstrap display
+window.onload = () => {
 
     initCanvas();
 
     //start the game
-    currentPlayer.atYourTurn(board.model, board, canvasConfig, mousePos)
-        .then(()=> play(board.model) );
+    nextMove(board.model);
+
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);
-};
 
+};

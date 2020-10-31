@@ -1,10 +1,10 @@
 import * as BoardModel from './BoardModel.js';
 
 const config = {
-    columnWidth : 80,
-    rowHeight   : 80,
-    cellRadius  : 28,
-    margin      : 40,
+    columnWidth : 65,
+    rowHeight   : 65,
+    cellRadius  : 25,
+    margin      : 22,
     edgeCurve   : 15,
     boardColor  : "rgb(30, 130, 220)"
 };
@@ -83,6 +83,10 @@ class Board {
 
         this.model.forEachCell((column, cell)=>{
             
+                ctx.shadowColor = "black";
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
                 ctx.fillStyle = cell.value.color;
 
                 ctx.beginPath();
@@ -113,6 +117,22 @@ class Board {
             
                     ctx.stroke();
                 }
+
+                if (this.model.getLastPlayedCell() === cell){
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.strokeStyle = cell.value.color;
+                    ctx.arc(
+                        getX(column),
+                        getY(cell),
+                        config.cellRadius + 1,
+                        0, 
+                        Math.PI * 2, 
+                        true);    
+            
+                    ctx.stroke();
+                }
+                ctx.shadowColor='rgba(0,0,0,0)';
         
         });
     }
