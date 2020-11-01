@@ -35,8 +35,25 @@
     
       <div class="user-card mdl-grid mdl-card "
           v-bind:class="{'mdl-shadow--4dp' : isCurrentPlayer }">
-        <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-cell mdl-cell--10-col">
           <span class="player-name" v-bind:style="{color : player.color}"  >{{player.name}}</span>
+        </div>
+        <div class="mdl-cell mdl-cell--2-col" v-if="! player.isHuman() ">
+          <!-- resume -->
+          <button v-on:click="resume"
+          title="Player is suspended. Click to make it play"
+          class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
+          v-if="player.suspended">
+          <i class="material-icons md-36">play_circle_outline</i>
+          </button>
+
+          <!-- pause -->
+          <button v-on:click="pause"
+          title="Click to suspend player"
+          class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
+          v-if="! player.suspended">
+          <i class="material-icons md-36">pause_circle_outline</i>
+          </button>
         </div>
 
         <div class="mdl-cell mdl-cell--4-col">
@@ -81,22 +98,11 @@
         <div class="mdl-grid">
           
           <div class="mdl-cell mdl-cell--1-col">
-            <!-- Play again/Restart -->
-            <button v-on:click="start"
-            title="Let's try again"
-            class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
-            v-if="boardModel.isComplete()">
-            <i class="material-icons md-36">Play again</i>
-            </button>
-          </div>
-          
-          <div class="mdl-cell mdl-cell--1-col">
              <!-- Reset game -->
             <button v-on:click="start"
-                title="Reset the current game"
-                class="mdl-button mdl-js-button mdl-button--text mdl-button--colored"
-                v-if=" ! boardModel.isComplete()">
-                <i class="">RESET</i>
+                title="Cancel current game and start a new one"
+                class="mdl-button mdl-js-button mdl-button--text mdl-button--colored">
+                <i class="">Restart</i>
             </button>
           </div>
           
@@ -115,9 +121,9 @@
 
         </div>
         
-        <user-board v-bind:player='players[0]'></user-board>
+        <user-board v-bind:player='players[0]'  v-on:resume='resume' ></user-board>
         
-        <user-board v-bind:player='players[1]'></user-board>
+        <user-board v-bind:player='players[1]' v-on:resume='resume' ></user-board>
 
       </div>
       <main class="mdl-layout__content">

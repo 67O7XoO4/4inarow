@@ -5,7 +5,7 @@ import * as ComputerStrategy from './ComputerStrategy.js';
 class Player {
     
     constructor(config, isHuman){
-        
+        this.suspended = false;
         if (isHuman){
             this.strategy = new HumanStrategy.HumanStrategy();
         }else{

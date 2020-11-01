@@ -68,18 +68,24 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth){
     
     //is last move a win ?
     if (model.getLastPlayedCell() && model.checkIfLastPlayWin()){
-        return {score: MAX_SCORE * currentPlayerCoeff, 
-                num : model.getLastPlayedCell().column.num};
+        return {
+                score: MAX_SCORE * currentPlayerCoeff, 
+                num : model.getLastPlayedCell().column.num
+            };
 
     }else if (model.isComplete()){
         //even game
-        return {score: EVEN_SCORE , 
-                num : model.getLastPlayedCell().column.num};
+        return {
+            score: EVEN_SCORE , 
+            num : model.getLastPlayedCell().column.num
+        };
 
     }else  if(currentDepth === 0 ){
         // evaluate the state of the game for the current Player
-        return {score: evaluate(model, currentPlayer) * currentPlayerCoeff ,
-                num : model.getLastPlayedCell().column.num};
+        return {
+            score: evaluate(model, currentPlayer) * currentPlayerCoeff ,
+            num : model.getLastPlayedCell().column.num
+        };
 
     } else {
 
@@ -105,6 +111,7 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth){
         if ( ! cachedScore){
             //go deeper
             cachedScore =  model.columns.reduce((currentSelection, column)=>{
+
                 let columnScore=null;
 
                 if(! column.isComplete()){

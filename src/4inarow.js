@@ -56,10 +56,15 @@ function play(boardModel){
 
 function nextMove(boardModel){
 
-    currentPlayer.atYourTurn(boardModel, board, canvasConfig, mousePos)
-    //when ready, play the next move
-    .then(()=> play(boardModel) );
-
+    if ( ! currentPlayer.suspended){
+            
+        currentPlayer.atYourTurn(boardModel, board, canvasConfig, mousePos)
+        //when ready, play the next move
+        .then(()=> play(boardModel) )
+        .catch(()=>{
+            console.log("interrupted");
+        })
+    }
 }
 
 // Main animation loop
@@ -100,6 +105,15 @@ Vue.component('user-board', {
         changeStrategy : function(){
             this.player.changeStrategy();
         },
+        resume : function(){
+            this.player.suspended = false;
+            this.$emit('resume');
+        },
+        
+        pause : function(){ 
+            this.player.suspended = true;
+            this.$emit('pause');
+        }
     }
      ,
 })
@@ -107,9 +121,9 @@ Vue.component('user-board', {
 var fourInARowApp = new Vue({
     el: '#fourInARowApp',
     data: {
-    title: '4 In a Row !!',
-    players: players,
-    boardModel : board.model
+        title: '4 In a Row !!',
+        players: players,
+        boardModel : board.model
     },
     computed: {
         isUndoDisabled() {
@@ -118,17 +132,27 @@ var fourInARowApp = new Vue({
     },
 
     methods: {
+
+        resume : function(){
+            nextMove(board.model);
+        },
+
         undo: function () {
 
             currentPlayer.interrupt();
 
             let wasWinning = board.model.undoLastPlay();
             
-            if (wasWinning){
-                //restart the game
-                nextMove(board.model);
-            }else{
+            if ( ! wasWinning){
                 currentPlayer = currentPlayer.nextPlayer;
+            }
+            if ( ! currentPlayer.isHuman()){
+                if (! currentPlayer.suspended){
+                    currentPlayer.suspended = true;                
+                    displayMsg(currentPlayer.name + ' paused. Click to resume to let it play');
+                }
+            }else{
+                nextMove(board.model);
             }
         },
         start: function () {
@@ -151,7 +175,7 @@ window.onload = () => {
 
     //start the game
     nextMove(board.model);
-
+    displayMsg('New game started. ' + currentPlayer.name + ' to play');
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);
