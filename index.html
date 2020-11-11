@@ -10,6 +10,8 @@
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+    <script src="https://unpkg.com/vue-i18n@8.22.0/dist/vue-i18n.js"></script>
+    
     <script type="module" src="./src/4inarow.js"></script>
 
     <style type="text/css">
@@ -41,17 +43,17 @@
         <div class="mdl-cell mdl-cell--2-col" v-if="! player.isHuman() ">
           <!-- resume -->
           <button v-on:click="resume"
-          title="Player is suspended. Click to make it play"
-          class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
-          v-if="player.suspended">
+            :title="$t('playerSuspendedTitle')"
+            class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
+            v-if="player.suspended">
           <i class="material-icons md-36">play_circle_outline</i>
           </button>
 
           <!-- pause -->
           <button v-on:click="pause"
-          title="Click to suspend player"
-          class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
-          v-if="! player.suspended">
+            :title="$t('suspendPlayerTitle')"
+            class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
+            v-if="! player.suspended">
           <i class="material-icons md-36">pause_circle_outline</i>
           </button>
         </div>
@@ -59,15 +61,16 @@
         <div class="mdl-cell mdl-cell--4-col">
           <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" 
                 v-bind:for="player.name" 
-                title="Change human/computer player">
+                :title="$t('changePlayerTypeTitle')">
             <input type="checkbox" 
                 v-bind:id="player.name" class="mdl-switch__input"
                 v-bind:checked="player.isHuman()" 
                 v-on:change="changeStrategy">
             <span class="mdl-switch__label">
-              <i v-if="player.isHuman()" title="Played by a human"
+              <i v-if="player.isHuman()" :title="$t('playedByHumanTitle')"
                   class="material-icons">person</i>
-              <i v-if="! player.isHuman()" title="Played by the computer" class="material-icons">computer</i>
+              <i v-if="! player.isHuman()" :title="$t('playedByComputerTitle')" 
+              class="material-icons">computer</i>
             </span>
           </label>
         </div>
@@ -77,7 +80,7 @@
         </div>
         <div class="mdl-cell mdl-cell--1-col" v-show="! player.isHuman()">
           <span class="mdl-badge mdl-badge--overlap" v-bind:data-badge="player.strategy.depth" 
-                v-bind:title="player.strategy.depth" v-show="! player.isHuman()">
+                :title="player.strategy.depth" v-show="! player.isHuman()">
           </span>
       </div>
 
@@ -92,7 +95,7 @@
     <div id="fourInARowApp" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
 
       <div class="mdl-layout__drawer">
-        <span class="mdl-layout-title"><h4>{{title}}</h4></span>
+        <span class="mdl-layout-title"><h4>{{ $t("title") }}</h4></span>
         
         
         <div class="mdl-grid">
@@ -100,9 +103,9 @@
           <div class="mdl-cell mdl-cell--1-col">
              <!-- Reset game -->
             <button v-on:click="start"
-                title="Cancel current game and start a new one"
+                :title="$t('cancelRestartTitle')"
                 class="mdl-button mdl-js-button mdl-button--text mdl-button--colored">
-                <i class="">Restart</i>
+                <i class="">{{ $t("restart") }}</i>
             </button>
           </div>
           
@@ -112,7 +115,7 @@
           <div class="mdl-cell mdl-cell--1-col">
              <!-- UNDO -->
             <button v-on:click="undo"
-              title="Undo last move"
+              :title="$t('undoTitle')"
               class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
               :disabled="isUndoDisabled">
               <i class="material-icons md-36">undo</i>
@@ -125,6 +128,10 @@
         
         <user-board v-bind:player='players[1]' v-on:resume='resume' ></user-board>
 
+        <select v-model="$i18n.locale">
+          <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">{{ lang }}</option>
+        </select>
+        
       </div>
       <main class="mdl-layout__content">
         

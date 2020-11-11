@@ -1,9 +1,11 @@
 import * as Board from './Board.js';
 import * as Player from './Player.js';
 
-const RED_CONFIG = {   color : "rgb(255, 100, 100)", name : "RED"   };
+import i18n from './i18n/I18n.js'
 
-const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , name : "YELLOW"  };
+
+const RED_CONFIG = {   color : "rgb(255, 100, 100)", nameKey : "RED"   };
+const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , nameKey : "YELLOW"  };
 
 let players = [];
 let currentPlayer = null;
@@ -41,11 +43,11 @@ function play(boardModel){
 
     if ( boardModel.checkIfLastPlayWin()){
         //
-        displayMsg(currentPlayer.name + ' win !!');
+        displayMsg('playerWin', {name: currentPlayer.name});
 
     }else if ( boardModel.isComplete()){
         //even game
-        displayMsg('Even game :(');
+        displayMsg('evenGame');
         
     }else{
         //next  
@@ -77,13 +79,15 @@ function animationLoop() {
     window.requestAnimationFrame(animationLoop);
 }
 
-function displayMsg(msg){
+function displayMsg(msgKey, params){
     
     let snackbarContainer = document.querySelector('#snackbarmsg');
-    var data = {message: msg};
+    var data = {message: i18n.t(msgKey, params)};
     snackbarContainer.MaterialSnackbar.showSnackbar(data);
 }
 
+RED_CONFIG.name = i18n.t(RED_CONFIG.nameKey);
+YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.nameKey);
 
 players.push(new Player.Player(RED_CONFIG, true));
 players.push(new Player.Player(YELLOW_CONFIG, false));
@@ -118,12 +122,16 @@ Vue.component('user-board', {
      ,
 })
 
+  
+
 var fourInARowApp = new Vue({
+    i18n,
     el: '#fourInARowApp',
     data: {
         title: '4 In a Row !!',
         players: players,
-        boardModel : board.model
+        boardModel : board.model,
+        langs : i18n. availableLocales
     },
     computed: {
         isUndoDisabled() {
@@ -149,7 +157,7 @@ var fourInARowApp = new Vue({
             if ( ! currentPlayer.isHuman()){
                 if (! currentPlayer.suspended){
                     currentPlayer.suspended = true;                
-                    displayMsg(currentPlayer.name + ' paused. Click to resume to let it play');
+                    displayMsg('playerPaused', {name: currentPlayer.name});
                 }
             }else{
                 nextMove(board.model);
@@ -163,7 +171,7 @@ var fourInARowApp = new Vue({
             //restart the game
             nextMove(board.model);
 
-            displayMsg('New game started. ' + currentPlayer.name + ' to play');
+            displayMsg('newGame', {name: currentPlayer.name});
         },
     }
 })
@@ -175,7 +183,7 @@ window.onload = () => {
 
     //start the game
     nextMove(board.model);
-    displayMsg('New game started. ' + currentPlayer.name + ' to play');
+    displayMsg('newGame', {name: currentPlayer.name});
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);
