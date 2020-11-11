@@ -33,8 +33,8 @@ class Player {
     //nextPlayer : null
     //color
 
-    atYourTurn(model, board,  canvasConfig, mousePos){
-        return this.strategy.atYourTurn(model, board,  canvasConfig, mousePos);
+    atYourTurn(model, board,  boardCanvas, mousePos){
+        return this.strategy.atYourTurn(model, board,  boardCanvas, mousePos);
     } 
 
     setNextPlayer(otherPlayer){

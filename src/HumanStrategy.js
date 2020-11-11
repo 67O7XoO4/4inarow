@@ -5,7 +5,7 @@ class HumanStrategy  {
         this.isHuman = true;
     }
 
-    atYourTurn(model, board,  canvasConfig, mousePos){
+    atYourTurn(model, board,  boardCanvas, mousePos){
     
         return new Promise((resolve, reject)=>{
 
@@ -13,7 +13,7 @@ class HumanStrategy  {
             board.setSelectedColumn(mousePos.x);
         
             let mousemove = (evt)=>{
-                var rect = canvasConfig.boardCanvas.getBoundingClientRect();
+                var rect =  boardCanvas.getBoundingClientRect();
         
                 mousePos.out = false;
         
@@ -23,11 +23,22 @@ class HumanStrategy  {
                 board.setSelectedColumn(mousePos.x);
                 //console.debug(mousePos);
             };
-            canvasConfig.boardCanvas.addEventListener('mousemove', mousemove, false);
-        
+             boardCanvas.addEventListener('mousemove', mousemove, false);
+            let mouseout =  ()=> (mousePos.out = true);
+             boardCanvas.addEventListener('mouseout', mouseout, false);
+            let click = ()=> {
+                if (model.selectedColumn){
+
+                    //current player has played, let's see if he wins 
+                    removeEventListeners(false);
+                }
+            };
+             boardCanvas.addEventListener('click', click, false);
+
             let removeEventListeners = (isInterrupted)=>{
-                canvasConfig.boardCanvas.removeEventListener('mousemove', mousemove, false);
-                canvasConfig.boardCanvas.removeEventListener('click', click, false);
+                 boardCanvas.removeEventListener('mousemove', mousemove, false);
+                 boardCanvas.removeEventListener('mouseout', mouseout, false);
+                 boardCanvas.removeEventListener('click', click, false);
                 if(isInterrupted){
                     reject();
                 }else{
@@ -36,15 +47,6 @@ class HumanStrategy  {
             };
             this.removeEventListeners = removeEventListeners;
 
-            let click = ()=> {
-                if (model.selectedColumn){
-
-                    //current player has played, let's see if he wins 
-                    removeEventListeners(false);
-                }
-            };
-
-            canvasConfig.boardCanvas.addEventListener('click', click, false);
         });
     } 
 

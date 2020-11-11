@@ -1,4 +1,3 @@
-import * as BoardModel from './BoardModel.js';
 
 const config = {
     columnWidth : 65,
@@ -47,7 +46,7 @@ class Board {
     model = null;
 
     constructor(boardModel){
-        this.model = new BoardModel.BoardModel();   
+        this.model = boardModel; 
     }
 
     forEachCell(callback){
@@ -60,6 +59,13 @@ class Board {
         let col = this.model.columns.find(column => getXinf(column) < x && x <= getXSup(column) );
         if (col) this.model.setSelectedColumn(col.num);
         return this.selectedColumn;
+    }
+
+    setSize(size){
+        //size 500
+        config.columnWidth = Math.round(size / 7.5); //65
+        config.rowHeight   = Math.round(size / 7.5); //65
+        config.cellRadius  = Math.round(size / 20) ; //25;
     }
 
     /**

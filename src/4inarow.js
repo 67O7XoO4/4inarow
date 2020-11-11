@@ -1,4 +1,6 @@
 import * as Board from './Board.js';
+import * as BoardModel from './BoardModel.js';
+
 import * as Player from './Player.js';
 
 import i18n from './i18n/I18n.js'
@@ -10,8 +12,8 @@ const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , nameKey : "YELLOW"  };
 let players = [];
 let currentPlayer = null;
 
-let board = new Board.Board();
-
+let board = null;
+let boardModel = new BoardModel.BoardModel();
 
 // canvas config (Size,...). These get updated after browser loading.
 let canvasConfig = {};
@@ -22,14 +24,31 @@ let mousePos = {x: 0, y:0, out: true}; //out = mouse over or not
  * 
  */
 function initCanvas() {
+
+    board = new Board.Board(boardModel);
+
     canvasConfig.boardCanvas = document.getElementById("boardCanvas");
-
-    canvasConfig.boardCanvas.addEventListener('mouseout', ()=> (mousePos.out = true), false);
-
     canvasConfig.ctx = canvasConfig.boardCanvas.getContext("2d");
-    //set Y=0 at the bottom of the board
-    canvasConfig.ctx.translate(0, board.getHeight() );
-    canvasConfig.ctx.scale (1, -1);
+    
+    let resize = ()=>{
+        //map the canvas size to the displayed size
+        let size = Math.min(canvasConfig.boardCanvas.parentElement.clientWidth,
+                            canvasConfig.boardCanvas.parentElement.clientHeight)
+        
+        canvasConfig.boardCanvas.width = size;
+        canvasConfig.boardCanvas.height = size;
+
+        board.setSize(size);
+
+        //set Y=0 at the bottom of the board
+        canvasConfig.ctx.translate(0, board.getHeight() );
+        canvasConfig.ctx.scale (1, -1);
+    
+    };
+
+    resize();
+
+    window.addEventListener("resize", resize, false);
 }
 
 /**
@@ -60,7 +79,7 @@ function nextMove(boardModel){
 
     if ( ! currentPlayer.suspended){
             
-        currentPlayer.atYourTurn(boardModel, board, canvasConfig, mousePos)
+        currentPlayer.atYourTurn(boardModel, board, canvasConfig.boardCanvas, mousePos)
         //when ready, play the next move
         .then(()=> play(boardModel) )
         .catch(()=>{
@@ -96,7 +115,7 @@ currentPlayer = players[0];
 currentPlayer.setNextPlayer(players[1]);
 
 
-
+// init GUI
 Vue.component('user-board', {
     template: '#user-board-template',
     props: ['player'],
@@ -119,23 +138,22 @@ Vue.component('user-board', {
             this.$emit('pause');
         }
     }
-     ,
+    ,
 })
 
-  
+
 
 var fourInARowApp = new Vue({
     i18n,
     el: '#fourInARowApp',
     data: {
-        title: '4 In a Row !!',
         players: players,
-        boardModel : board.model,
+        boardModel : boardModel,
         langs : i18n. availableLocales
     },
     computed: {
         isUndoDisabled() {
-          return board.model.isEmpty();
+            return boardModel.isEmpty();
         }
     },
 
@@ -176,6 +194,7 @@ var fourInARowApp = new Vue({
     }
 })
 
+
 //bootstrap display
 window.onload = () => {
 
@@ -183,7 +202,7 @@ window.onload = () => {
 
     //start the game
     nextMove(board.model);
-    displayMsg('newGame', {name: currentPlayer.name});
+   displayMsg('newGame', {name: currentPlayer.name});
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);
