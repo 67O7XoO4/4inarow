@@ -3,14 +3,15 @@ const config = {
     columnWidth : 65,
     rowHeight   : 65,
     cellRadius  : 25,
-    margin      : 22,
+    hMargin      : 22,
+    vMargin      : 22,
     edgeCurve   : 15,
     boardColor  : "rgb(30, 130, 220)"
 };
 
 
 function getXinf(column){
-    return config.margin + column.num * config.columnWidth;
+    return config.hMargin + column.num * config.columnWidth;
 }
 
 function getXSup(column){
@@ -22,7 +23,7 @@ function getX(column){
 }
 
 function getY(cell){    
-    return config.margin + cell.num * config.rowHeight +  config.rowHeight/2; 
+    return config.vMargin + cell.num * config.rowHeight +  config.rowHeight/2; 
 }
 
 //from MDN, 
@@ -66,6 +67,8 @@ class Board {
         config.columnWidth = Math.round(size / 7.5); //65
         config.rowHeight   = Math.round(size / 7.5); //65
         config.cellRadius  = Math.round(size / 20) ; //25;
+        config.vMargin     = config.cellRadius;
+        config.hMargin     = Math.round(config.cellRadius * 2 / 3);
     }
 
     /**
@@ -173,11 +176,11 @@ class Board {
     }
 
     getXLeft(){
-        return config.margin;
+        return config.hMargin;
     }
 
     getYBottom(){
-        return config.margin;
+        return config.vMargin;
     }
     
     getInnerWidth(){
@@ -189,15 +192,15 @@ class Board {
     }
 
     getHeight(){
-        return 2*config.margin + config.rowHeight * this.model.getConfig().nbRows;
+        return 2*config.vMargin + config.rowHeight * this.model.getConfig().nbRows;
     }
 
     getXRight(){
-        return config.margin + this.model.getConfig().nbColumns * config.columnWidth;
+        return config.hMargin + this.model.getConfig().nbColumns * config.columnWidth;
     }
 
     getYUp(){
-        return config.margin + config.rowHeight * this.model.getConfig().nbRows;
+        return config.vMargin + config.rowHeight * this.model.getConfig().nbRows;
     }
 
 }

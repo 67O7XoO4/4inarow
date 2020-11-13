@@ -71,8 +71,12 @@ function play(boardModel){
     }else{
         //next  
         currentPlayer = currentPlayer.nextPlayer;
+        currentPlayer.isCurrentPlayer = true;
+        currentPlayer.nextPlayer.isCurrentPlayer = false;
+
         nextMove(boardModel);
     }
+    Vue.forceUpdate();
 }
 
 function nextMove(boardModel){
@@ -98,11 +102,8 @@ function animationLoop() {
     window.requestAnimationFrame(animationLoop);
 }
 
-function displayMsg(msgKey, params){
-    
-    let snackbarContainer = document.querySelector('#snackbarmsg');
-    var data = {message: i18n.t(msgKey, params)};
-    snackbarContainer.MaterialSnackbar.showSnackbar(data);
+function displayMsg(msgKey, params){    
+    fourInARowApp.snackbar =  {msg: i18n.t(msgKey, params), show : true };
 }
 
 RED_CONFIG.name = i18n.t(RED_CONFIG.nameKey);
@@ -112,18 +113,18 @@ players.push(new Player.Player(RED_CONFIG, true));
 players.push(new Player.Player(YELLOW_CONFIG, false));
 
 currentPlayer = players[0];
+currentPlayer.isCurrentPlayer = true;
 currentPlayer.setNextPlayer(players[1]);
-
+currentPlayer.nextPlayer.isCurrentPlayer = false;
 
 // init GUI
 Vue.component('user-board', {
     template: '#user-board-template',
+    data: () => ({
+        dialogSettings : {show : false}
+    }),
     props: ['player'],
-    computed: {
-        isCurrentPlayer : function(){
-            return this.player === currentPlayer;
-        },
-    },
+     
     methods : {
         changeStrategy : function(){
             this.player.changeStrategy();
@@ -141,7 +142,7 @@ Vue.component('user-board', {
     ,
 })
 
-
+Vue.use(VueMaterial.default);
 
 var fourInARowApp = new Vue({
     i18n,
@@ -149,7 +150,10 @@ var fourInARowApp = new Vue({
     data: {
         players: players,
         boardModel : boardModel,
-        langs : i18n. availableLocales
+        langs : i18n. availableLocales,
+        snackbar : {msg : "", show : false},
+        menu: {  show : false},
+        showRestartConfirm : false,
     },
     computed: {
         isUndoDisabled() {
@@ -181,7 +185,7 @@ var fourInARowApp = new Vue({
                 nextMove(board.model);
             }
         },
-        start: function () {
+        onConfirmRestart: function () {
             
             currentPlayer.interrupt();
             

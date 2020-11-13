@@ -2,156 +2,202 @@
 <html>
   <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimal-ui">
+
     <title>4 in a ROW</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
-    <script src="https://unpkg.com/vue-i18n@8.22.0/dist/vue-i18n.js"></script>
-    
-    <script type="module" src="./src/4inarow.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
 
     <style type="text/css">
-    .user-card.mdl-card {
-      width: 220px; 
-      min-height : 0;
-      margin-bottom: 20px;
-      padding-bottom: 0;
+    .md-card.user-card {
+      max-width: 250px; 
+    }
+    .md-app-content .md-card.user-card {
+      margin-left: 8px;
+      margin-right: 8px; 
+    }
+    .md-card.user-card.current-player {
+      border: solid 1px;
     }
 
-    .board-card.mdl-card {
-      
-      margin: 20px;
-      width: min(90vw, 90vh);
-      height: min(90vw, 90vh);
-      max-height: 600px; 
-      max-width: 600px; 
+    .board-card  {
+      width: min(90vw, 80vh);
+      height: min(90vw, 80vh);
+      max-height: 550px; 
+      max-width: 550px; 
       background-color: rgb(245, 245, 245); 
     }
-
-    .player-name{
-      border-left: 10px solid;
-    }
+ 
    </style>
    <script type="text/x-template" id="user-board-template">
     
-      <div class="user-card mdl-grid mdl-card "
-          v-bind:class="{'mdl-shadow--4dp' : isCurrentPlayer }">
-        <div class="mdl-cell mdl-cell--10-col">
-          <span class="player-name" v-bind:style="{color : player.color}"  >{{player.name}}</span>
-        </div>
-        <div class="mdl-cell mdl-cell--2-col" v-if="! player.isHuman() ">
+      <md-card class="user-card"
+           :class="{'md-elevation-6' : player.isCurrentPlayer, 'current-player' : player.isCurrentPlayer,  }"
+           :style="{'border-color' : player.color}">
+        <md-card-header>
+          <md-card-header-text >
+            <div class="md-title md-small-hide">{{player.name}}</div>
+            <div v-if="player.isHuman()"  class="md-subhead md-small-hide" >{{$t('playedByHumanTitle')}}</div>
+            <div v-if="! player.isHuman()" class="md-subhead md-small-hide">{{$t('playedByComputerTitle')}}</div>
+             
+          </md-card-header-text>
+          <md-avatar class="md-large">
+            <md-icon v-if="player.isHuman()" :title="$t('playedByHumanTitle')" :style="{color : player.color}">person</md-icon>
+            <md-icon v-if="! player.isHuman()" :title="$t('playedByComputerTitle')" :style="{color : player.color}">computer</md-icon>
+          </md-avatar> 
+          
+        </md-card-header>
+
+        <md-card-actions>
+          
+          <md-dialog  :md-active.sync="dialogSettings.show">
+            <md-dialog-title>{{$t('settings')}}</md-dialog-title>
+            <md-dialog-content>
+              <md-field>
+                <div class="md-subhead" v-if="player.isHuman()">{{$t('playedByHumanTitle')}}</div>
+                <div class="md-subhead"  v-if=" ! player.isHuman()">{{$t('playedByComputerTitle')}}</div>
+                <md-subheader>{{$t('changePlayerTypeTitle')}}</md-subheader>
+                <md-switch id="changePlayerType" :value="player.isHuman()" v-on:change="changeStrategy" :title="$t('changePlayerTypeTitle')"></md-switch>
+              </md-field>
+
+              <md-list v-show="! player.isHuman()">
+                <md-subheader>{{$t('depth')}}</md-subheader>
+                <md-list-item v-for="i in [3,4,5,6,7,8,9]" >
+                  <md-radio v-model="player.strategy.depth" :value="i" :key="i" />
+                  <span class="md-list-item-text"> {{ $t('level_' + i) }}</span>
+                  <md-badge class="md-square" :md-content="i" />
+                </md-list-item>
+              </md-list>
+            </md-dialog-content>
+            <md-dialog-actions>
+              <md-button class="md-primary" @click="dialogSettings.show = false">Close</md-button>
+            </md-dialog-actions>
+          </md-dialog>
+
+          <md-chip class="md-primary"  v-if="! player.isHuman()"
+                  :title="$t('level_' + player.strategy.depth)">{{ player.strategy.depth }}</md-chip>
+           
+
+          <!-- settings -->
+          <md-button @click="dialogSettings.show = true"
+            :title="$t('playerSettingsTitle')"
+            class="md-icon-button">
+            <md-icon>settings</md-icon>
+          </md-button>
+
           <!-- resume -->
-          <button v-on:click="resume"
+          <md-button v-on:click="resume"  
             :title="$t('playerSuspendedTitle')"
-            class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
-            v-if="player.suspended">
-          <i class="material-icons md-36">play_circle_outline</i>
-          </button>
+            class="md-icon-button"
+            v-if="! player.isHuman() && player.suspended">
+            <md-icon>play_circle_outline</md-icon>
+          </md-button>
 
           <!-- pause -->
-          <button v-on:click="pause"
+          <md-button v-on:click="pause"  
             :title="$t('suspendPlayerTitle')"
-            class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
-            v-if="! player.suspended">
-          <i class="material-icons md-36">pause_circle_outline</i>
-          </button>
-        </div>
-
-        <div class="mdl-cell mdl-cell--4-col">
-          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" 
-                v-bind:for="player.name" 
-                :title="$t('changePlayerTypeTitle')">
-            <input type="checkbox" 
-                v-bind:id="player.name" class="mdl-switch__input"
-                v-bind:checked="player.isHuman()" 
-                v-on:change="changeStrategy">
-            <span class="mdl-switch__label">
-              <i v-if="player.isHuman()" :title="$t('playedByHumanTitle')"
-                  class="material-icons">person</i>
-              <i v-if="! player.isHuman()" :title="$t('playedByComputerTitle')" 
-              class="material-icons">computer</i>
-            </span>
-          </label>
-        </div>
-        <div class="mdl-cell mdl-cell--7-col" v-show="! player.isHuman()">
-            <input 
-                class="mdl-slider mdl-js-slider" type="range"  min="1" max="10" v-model="player.strategy.depth" tabindex="0">
-        </div>
-        <div class="mdl-cell mdl-cell--1-col" v-show="! player.isHuman()">
-          <span class="mdl-badge mdl-badge--overlap" v-bind:data-badge="player.strategy.depth" 
-                :title="player.strategy.depth" v-show="! player.isHuman()">
-          </span>
-      </div>
-
-        <div v-show="! player.isHuman()"  class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-          
-      </div>
+            class="md-icon-button "
+            v-if="! player.isHuman() && ! player.suspended">
+            <md-icon>pause_circle_outline</md-icon>
+          </md-button>
+        </md-card-actions>
+      </md-card>
       
-  </script>
+    </script>
   </head>
   <body>
 
-    <div id="fourInARowApp" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+    <div id="fourInARowApp" class="page-container md-layout-row">
+      <md-app>
+        <md-app-toolbar class="md-primary">
+          <md-button class="md-icon-button" @click="menu.show = true">
+            <md-icon>menu</md-icon>
+          </md-button>
+          <span class="md-title">{{ $t("title") }}</span>
+        </md-app-toolbar>
 
-      <div class="mdl-layout__drawer">
-        <span class="mdl-layout-title"><h4>{{ $t("title") }}</h4></span>
-        
-        
-        <div class="mdl-grid">
-          
-          <div class="mdl-cell mdl-cell--1-col">
-             <!-- Reset game -->
-            <button v-on:click="start"
-                :title="$t('cancelRestartTitle')"
-                class="mdl-button mdl-js-button mdl-button--text mdl-button--colored">
-                <i class="">{{ $t("restart") }}</i>
-            </button>
-          </div>
-          
-          <div class="mdl-cell mdl-cell--8-col">
-          </div>
-          
-          <div class="mdl-cell mdl-cell--1-col">
-             <!-- UNDO -->
-            <button v-on:click="undo"
-              :title="$t('undoTitle')"
-              class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"
-              :disabled="isUndoDisabled">
-              <i class="material-icons md-36">undo</i>
-            </button>
+        <md-app-drawer  md-swipeable :md-active.sync="menu.show">
+          <md-toolbar class="md-transparent" md-elevation="0">
+            <span class="md-title">{{ $t("title") }}</span>
+          </md-toolbar>
+          <md-field>
+            <label for="lang">{{ $t("chooseLang") }}</label>
+            <md-select id="lang" v-model="$i18n.locale">
+              <md-option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">{{ lang }}</option>
+            </md-select>
+        </md-field>
+      </md-app-drawer>
+
+      <md-app-content>
+
+        <div class="md-layout">
+
+          <md-card class="md-layout-item md-xsmall-size-100 board-card md-elevation-2"> <canvas id="boardCanvas"></canvas>  </md-card>
+
+          <div class="md-layout md-alignment-top-left">
+
+            <div class=" md-layout-item md-medium-size-100 md-large-size-66 md-xlarge-size-50 ">
+              <md-toolbar md-elevation="0" class="md-transparent md-dense">
+             
+                <!-- UNDO -->
+                <md-button  class="md-dense"
+                            v-on:click="undo"
+                            :title="$t('undoTitle')"
+                            :disabled="isUndoDisabled">
+                  <md-icon>undo</md-icon> Undo
+                </md-button>
+
+                <!-- Reset game -->
+                <md-button  class="md-dense"
+                            @click="showRestartConfirm = true"
+                            :title="$t('cancelRestartTitle')" >
+                  <md-icon>stop</md-icon>{{ $t("restart") }}
+                </md-button>
+
+              </md-toolbar>
+            </div>
+            <div class=" md-layout-item md-medium-hide md-large-size-33 md-xlarge-size-50">
+            </div>
+
+            <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
+              <user-board  :player='players[0]'  v-on:resume='resume' ></user-board>
+            </div>
+
+            <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
+              <user-board :player='players[1]' v-on:resume='resume' ></user-board>
+            </div>
           </div>
 
         </div>
-        
-        <user-board v-bind:player='players[0]'  v-on:resume='resume' ></user-board>
-        
-        <user-board v-bind:player='players[1]' v-on:resume='resume' ></user-board>
 
-        <select v-model="$i18n.locale">
-          <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">{{ lang }}</option>
-        </select>
 
-      </div>
-      <main class="mdl-layout__content">
-        
-        <div class="page-content">
-          <div class="board-card mdl-card mdl-shadow--2dp">
-            <canvas id="boardCanvas"></canvas>
-          </div>
-        </div>
+        <md-snackbar id="snackbarmsg" :md-active.sync="snackbar.show">
+          <span>{{ snackbar.msg }}</span>
+          <md-button class="md-primary" @click="snackbar.show = false"><md-icon>close</md-icon></md-button>
+        </md-snackbar >
+ 
+      </md-app-content> 
+      </md-app>
 
-        <div id="snackbarmsg" class="mdl-js-snackbar mdl-snackbar">
-          <div class="mdl-snackbar__text"></div>
-          <button class="mdl-snackbar__action" type="button"></button>
-        </div>
-       
-
-      </main>
+            
+      <md-dialog-confirm
+          :md-active.sync="showRestartConfirm"
+          :md-title="$t('cancelRestartTitle')"
+          md-content=""
+          :md-confirm-text="$t('confirm')"
+          :md-cancel-text="$t('cancel')"
+          @md-confirm="onConfirmRestart" />
     </div>
+
+        
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+    <script src="https://unpkg.com/vue-i18n@8.22.0/dist/vue-i18n.js"></script>
+    <script src="https://unpkg.com/vue-material"></script>
+    
+    <script type="module" src="./src/4inarow.js"></script>
+
 
   </body>
 </html>
