@@ -17,7 +17,8 @@ export default {
     level_8 :"Commandant",
     level_9 :"Grand maître",
 
-    newGame : 'Nouvelle partie. Au {name} de jouer.',
+    newGame : 'Nouvelle partie',
+    newGameMsg : 'Nouvelle partie. Au {name} de jouer.',
 
     playedByComputerTitle : "Joué par l'ordinateur",
     playedByHumanTitle : "Joué par un humain",
@@ -26,8 +27,7 @@ export default {
     playerSuspendedTitle : 'Le joueur est en pause. Cliquer pour le faire jouer.',
     playerWin : 'Le joueur {name} gagne !!',
 
-    RED : 'ROUGE',
-    restart : "Redémarrer",
+    RED : 'ROUGE', 
 
     settings :"Réglages",
     suspendPlayerTitle : 'Cliquer pour metre en pause le joueur',

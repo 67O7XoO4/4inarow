@@ -17,7 +17,8 @@ export default {
     level_8 :"Major",
     level_9 :"Grand master",
 
-    newGame :  'New game started. {name} to play',
+    newGame : 'New game',
+    newGameMsg :  'New game started. {name} to play',
 
     playedByComputerTitle : "Played by the computer",
     playedByHumanTitle : "Played by a human",
@@ -26,8 +27,7 @@ export default {
     playerSuspendedTitle : 'Player is suspended. Click to make it play',
     playerWin : '{name} win !!',
 
-    RED : 'RED',
-    restart : "Restart",
+    RED : 'RED', 
 
     settings :"Settings",
     suspendPlayerTitle : 'Click to pause the player',

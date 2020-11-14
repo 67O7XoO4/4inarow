@@ -88,7 +88,7 @@
                 <md-list-item v-for="i in [4,5,6,7,8,9]" >
                   <md-radio v-model="player.strategy.depth" :value="i" :key="i" />
                   <span class="md-list-item-text"> {{ $t('level_' + i) }}</span>
-                  <md-badge class="md-square" :md-content="i" />
+                  <md-badge class="md-primary" :md-content="i" :title="$t('level_' + i)" />
                 </md-list-item>
               </md-list>
             </md-dialog-content>
@@ -111,7 +111,7 @@
           <!-- resume -->
           <md-button v-on:click="resume"  
             :title="$t('playerSuspendedTitle')"
-            class="md-icon-button"
+            class="md-fab md-accent"
             v-if="! player.isHuman() && player.suspended">
             <md-icon>play_circle_outline</md-icon>
           </md-button>
@@ -172,11 +172,11 @@
                   <md-icon>undo</md-icon> Undo
                 </md-button>
 
-                <!-- Reset game -->
+                <!-- start a new game -->
                 <md-button  class="md-dense"
-                            @click="showRestartConfirm = true"
+                            @click="checkRestart"
                             :title="$t('cancelRestartTitle')" >
-                  <md-icon>stop</md-icon>{{ $t("restart") }}
+                  <md-icon>play_circle_outline</md-icon>{{ $t("newGame") }}
                 </md-button>
 
               </md-toolbar>
@@ -196,7 +196,7 @@
         </div>
 
 
-        <md-snackbar id="snackbarmsg" :md-active.sync="snackbar.show">
+        <md-snackbar id="snackbarmsg" :md-active.sync="snackbar.show"> 
           <span>{{ snackbar.msg }}</span>
           <md-button class="md-primary" @click="snackbar.show = false"><md-icon>close</md-icon></md-button>
         </md-snackbar >

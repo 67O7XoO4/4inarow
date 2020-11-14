@@ -51,6 +51,13 @@ function initCanvas() {
     window.addEventListener("resize", resize, false);
 }
 
+function nextPlayer(){
+    currentPlayer = currentPlayer.nextPlayer;
+    currentPlayer.isCurrentPlayer = true;
+    currentPlayer.nextPlayer.isCurrentPlayer = false;
+
+}
+
 /**
  * Let's make the current player play at the selected column
  * Chek if he wins
@@ -70,9 +77,7 @@ function play(boardModel){
         
     }else{
         //next  
-        currentPlayer = currentPlayer.nextPlayer;
-        currentPlayer.isCurrentPlayer = true;
-        currentPlayer.nextPlayer.isCurrentPlayer = false;
+        nextPlayer();
 
         nextMove(boardModel);
     }
@@ -89,6 +94,8 @@ function nextMove(boardModel){
         .catch(()=>{
             console.log("interrupted");
         })
+    }else{
+        displayMsg('playerPaused', {name: currentPlayer.name});
     }
 }
 
@@ -174,7 +181,7 @@ var fourInARowApp = new Vue({
             let wasWinning = board.model.undoLastPlay();
             
             if ( ! wasWinning){
-                currentPlayer = currentPlayer.nextPlayer;
+                nextPlayer();
             }
             if ( ! currentPlayer.isHuman()){
                 if (! currentPlayer.suspended){
@@ -185,6 +192,20 @@ var fourInARowApp = new Vue({
                 nextMove(board.model);
             }
         },
+
+        checkRestart: function () {
+            
+            currentPlayer.interrupt();
+            
+            if (board.model.isComplete()
+                || board.model.isEmpty()
+                || board.model.checkIfLastPlayWin()){
+                this.onConfirmRestart();
+            }else{
+                this.showRestartConfirm = true
+            }
+        },
+
         onConfirmRestart: function () {
             
             currentPlayer.interrupt();
@@ -193,7 +214,7 @@ var fourInARowApp = new Vue({
             //restart the game
             nextMove(board.model);
 
-            displayMsg('newGame', {name: currentPlayer.name});
+            displayMsg('newGameMsg', {name: currentPlayer.name});
         },
     }
 })
@@ -206,7 +227,7 @@ window.onload = () => {
 
     //start the game
     nextMove(board.model);
-   displayMsg('newGame', {name: currentPlayer.name});
+   displayMsg('newGameMsg', {name: currentPlayer.name});
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);

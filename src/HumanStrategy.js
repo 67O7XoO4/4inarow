@@ -23,9 +23,9 @@ class HumanStrategy  {
                 board.setSelectedColumn(mousePos.x);
                 //console.debug(mousePos);
             };
-             boardCanvas.addEventListener('mousemove', mousemove, false);
+            boardCanvas.addEventListener('mousemove', mousemove, false);
             let mouseout =  ()=> (mousePos.out = true);
-             boardCanvas.addEventListener('mouseout', mouseout, false);
+            boardCanvas.addEventListener('mouseout', mouseout, false);
             let click = ()=> {
                 if (model.selectedColumn){
 
