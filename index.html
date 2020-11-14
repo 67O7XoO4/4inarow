@@ -11,6 +11,27 @@
     <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
 
     <style type="text/css">
+
+    [v-cloak] > *  {
+      display: none;
+    }
+
+    [v-cloak]::before {
+      content: "4 In A Row";
+      display: block;
+      width: 225px;
+      height: 250px;
+      background-image: url("/images/loading2.png");
+      font-size: 3em;
+      font-weight: bold;
+      line-height: normal;
+      text-align: center;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .md-card.user-card {
       max-width: 250px; 
     }
@@ -107,9 +128,11 @@
       
     </script>
   </head>
+
+
   <body>
 
-    <div id="fourInARowApp" class="page-container md-layout-row">
+    <div id="fourInARowApp" class="page-container md-layout-row" v-cloak>
       <md-app>
         <md-app-toolbar class="md-primary">
           <md-button class="md-icon-button" @click="menu.show = true">
@@ -181,7 +204,6 @@
       </md-app-content> 
       </md-app>
 
-            
       <md-dialog-confirm
           :md-active.sync="showRestartConfirm"
           :md-title="$t('cancelRestartTitle')"
@@ -190,7 +212,6 @@
           :md-cancel-text="$t('cancel')"
           @md-confirm="onConfirmRestart" />
     </div>
-
         
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
     <script src="https://unpkg.com/vue-i18n@8.22.0/dist/vue-i18n.js"></script>
