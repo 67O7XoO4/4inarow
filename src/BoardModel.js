@@ -135,7 +135,7 @@ class BoardModel {
         return  this.playedCells[this.playedCells.length - 1];
     }
 
-    undoLastPlay(){
+    undoLastMove(){
 
         let isWinning = this.checkIfLastPlayWin();
         let cell = this.playedCells.pop();

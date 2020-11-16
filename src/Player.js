@@ -9,7 +9,7 @@ import * as ComputerStrategy from './ComputerStrategy.js';
  * a Strategy must looks like:
  *  {
  *      isHuman
- *      Promise atYourTurn(model, board,  boardCanvas, mousePos) //the promise is resolved when the player played
+ *      Promise atYourTurn(model, board) //the promise is resolved when the player played
  *      interrupt()
  *  }
  * 
@@ -65,11 +65,9 @@ class Player {
      * 
      * @param {*} model 
      * @param {*} board 
-     * @param {*} boardCanvas 
-     * @param {*} mousePos 
      */
-    atYourTurn(model, board,  boardCanvas, mousePos){
-        return this.strategy.atYourTurn(model, board,  boardCanvas, mousePos);
+    atYourTurn(model, board ){
+        return this.strategy.atYourTurn(model, board);
     } 
 
     /**

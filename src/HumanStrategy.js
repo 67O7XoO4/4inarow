@@ -1,4 +1,7 @@
 
+
+let mousePos = {x: 0, y:0, out: true}; //out = mouse over or not
+
 /**
  * 
  */
@@ -8,7 +11,7 @@ class HumanStrategy  {
         this.isHuman = true;
     }
 
-    atYourTurn(model, board,  boardCanvas, mousePos){
+    atYourTurn(model, board){
     
         return new Promise((resolve, reject)=>{
 
@@ -18,7 +21,7 @@ class HumanStrategy  {
             //listen to mouse event, find the selected column and play
 
             let mousemove = (evt)=>{
-                var rect =  boardCanvas.getBoundingClientRect();
+                var rect =  board.canvas.getBoundingClientRect();
         
                 mousePos.out = false;
         
@@ -28,9 +31,9 @@ class HumanStrategy  {
                 board.setSelectedColumn(mousePos.x);
                 //console.debug(mousePos);
             };
-            boardCanvas.addEventListener('mousemove', mousemove, false);
+            board.canvas.addEventListener('mousemove', mousemove, false);
             let mouseout =  ()=> (mousePos.out = true);
-            boardCanvas.addEventListener('mouseout', mouseout, false);
+            board.canvas.addEventListener('mouseout', mouseout, false);
             let click = ()=> {
                 if (model.selectedColumn){
 
@@ -38,12 +41,15 @@ class HumanStrategy  {
                     removeEventListeners(false);
                 }
             };
-             boardCanvas.addEventListener('click', click, false);
+            board.canvas.addEventListener('click', click, false);
 
             let removeEventListeners = (isInterrupted)=>{
-                 boardCanvas.removeEventListener('mousemove', mousemove, false);
-                 boardCanvas.removeEventListener('mouseout', mouseout, false);
-                 boardCanvas.removeEventListener('click', click, false);
+                board.canvas.removeEventListener('mousemove', mousemove, false);
+                board.canvas.removeEventListener('mouseout', mouseout, false);
+                board.canvas.removeEventListener('click', click, false);
+
+                 this.removeEventListeners = null;
+
                 if(isInterrupted){
                     reject();
                 }else{
@@ -56,8 +62,8 @@ class HumanStrategy  {
     } 
 
     interrupt(){
-        //we have been interrupted, we clean the listener and abort (reject) the play
-        this.removeEventListeners(true);
+        //we have been interrupted, we clean the listener (if exist) and abort (reject) the play
+        if (this.removeEventListeners) this.removeEventListeners(true);
     }
 };
 

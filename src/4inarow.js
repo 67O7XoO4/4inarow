@@ -14,42 +14,20 @@ let players = [];
 let currentPlayer = null;
 
 let board = null;
-let boardModel = new BoardModel.BoardModel();
-
-// canvas config (Size,...). These get updated after browser loading.
-let canvasConfig = {};
-let mousePos = {x: 0, y:0, out: true}; //out = mouse over or not
-
 
 /**
  * 
  */
-function initCanvas() {
-
-    board = new Board.Board(boardModel);
-
-    canvasConfig.boardCanvas = document.getElementById("boardCanvas");
-    canvasConfig.ctx = canvasConfig.boardCanvas.getContext("2d");
+function startGame(){
     
-    let resize = ()=>{
-        //map the canvas size to the displayed size
-        let size = Math.min(canvasConfig.boardCanvas.parentElement.clientWidth,
-                            canvasConfig.boardCanvas.parentElement.clientHeight)
-        
-        canvasConfig.boardCanvas.width = size;
-        canvasConfig.boardCanvas.height = size;
+    currentPlayer.interrupt();
+            
+    board.model.clearAll();
+    //restart the game
+    nextMove(board.model);
 
-        board.setSize(size);
-
-        //set Y=0 at the bottom of the board
-        canvasConfig.ctx.translate(0, board.getHeight() );
-        canvasConfig.ctx.scale (1, -1);
-    
-    };
-
-    resize();
-
-    window.addEventListener("resize", resize, false);
+    displayMsg('newGameMsg', {name: currentPlayer.name});
+    fourInARowApp.winner = NO_PLAYER;
 }
 
 /**
@@ -71,25 +49,28 @@ function play(boardModel){
         displayMsg('evenGame');
         
     }else{
-        //next  
+        //switch to next player 
         currentPlayer = currentPlayer.switchToNextPlayer();
 
         nextMove(boardModel);
     }
-    Vue.forceUpdate();
 }
 
+/**
+ * check for player suspension and ask him to play otherwise
+ */
 function nextMove(boardModel){
 
     if ( ! currentPlayer.suspended){
             
-        currentPlayer.atYourTurn(boardModel, board, canvasConfig.boardCanvas, mousePos)
+        currentPlayer.atYourTurn(boardModel, board)
         //when ready, play the next move
         .then(()=> play(boardModel) )
         .catch(()=>{
             console.log("interrupted");
         })
     }else{
+        //remind that the current player is paused
         displayMsg('playerPaused', {name: currentPlayer.name});
     }
 }
@@ -97,8 +78,8 @@ function nextMove(boardModel){
 // Main animation loop
 function animationLoop() {
             
-    board.display(canvasConfig.ctx);
-    board.displayMousePosition(currentPlayer, mousePos, canvasConfig.ctx );
+    board.display();
+    board.displaySelectedColumn(currentPlayer);
 
     // Schedule the next frame
     window.requestAnimationFrame(animationLoop);
@@ -108,6 +89,8 @@ function displayMsg(msgKey, params){
     fourInARowApp.snackbar =  {msg: i18n.t(msgKey, params), show : true };
 }
 
+
+//init players
 RED_CONFIG.name = i18n.t(RED_CONFIG.key);
 YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.key);
 
@@ -151,7 +134,6 @@ var fourInARowApp = new Vue({
     data: {
         players: players,
         winner : NO_PLAYER,
-        boardModel : boardModel,
         langs : i18n.availableLocales,
 
         //
@@ -161,26 +143,29 @@ var fourInARowApp = new Vue({
     },
     computed: {
         winnerClass(){
+            //what a fancy way to set CSS classes :(
             let classes = {'win' : this.winner.key != ''};
             classes[this.winner.key] = true;
             return classes;
         },
         isUndoDisabled() {
-            return boardModel.isEmpty();
+            return board != null && board.model.isEmpty();
         }
     },
 
     methods: {
 
+        //resume game after a player has been suspended
         resume : function(){
             nextMove(board.model);
         },
 
+        //undo last move (even if won)
         undo: function () {
 
             currentPlayer.interrupt();
 
-            let wasWinning = board.model.undoLastPlay();
+            let wasWinning = board.model.undoLastMove();
             
             if ( ! wasWinning){
                 //in fact, it should be previousPlayer() but it's the same !
@@ -197,6 +182,7 @@ var fourInARowApp = new Vue({
             this.winner = NO_PLAYER;
         },
 
+        //cancel current game and restart a new after a confirm 
         checkRestart: function () {
             
             if (board.model.isComplete()
@@ -204,34 +190,24 @@ var fourInARowApp = new Vue({
                 || board.model.checkIfLastPlayWin()){
                 this.onConfirmRestart();
             }else{
+                //ask for a confirm
                 this.showRestartConfirm = true
             }
         },
 
         onConfirmRestart: function () {
-            
-            currentPlayer.interrupt();
-            
-            board.model.clearAll();
-            //restart the game
-            nextMove(board.model);
-
-            displayMsg('newGameMsg', {name: currentPlayer.name});
-            this.winner = NO_PLAYER;
+            startGame();
         },
     }
 })
 
 
-//bootstrap display
+//bootstrap display and start game
 window.onload = () => {
 
-    initCanvas();
+    board = new Board.Board(new BoardModel.BoardModel(), "boardCanvas");
 
-    //start the game
-    nextMove(board.model);
-    displayMsg('newGameMsg', {name: currentPlayer.name});
-    fourInARowApp.winner = NO_PLAYER;
+    startGame();
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);

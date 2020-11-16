@@ -1,4 +1,6 @@
 
+
+//TODO should be in the board class
 const config = {
     columnWidth : 65,
     rowHeight   : 65,
@@ -46,8 +48,49 @@ class Board {
     
     model = null;
 
-    constructor(boardModel){
+    constructor(boardModel, canvasId){
         this.model = boardModel; 
+
+        this._initBoard(canvasId);
+    }
+
+    //private 
+    //init board and its related canvas
+    _initBoard(canvasId){
+            
+        // canvas config (Size,...). These get updated after browser loading.
+        this.canvas = document.getElementById( canvasId );
+        this.ctx = this.canvas.getContext("2d");
+    
+        let board = this;
+
+        let resize = ()=>{
+            //map the canvas size to the displayed size
+            let size = Math.min(board.canvas.parentElement.clientWidth,
+                                board.canvas.parentElement.clientHeight)
+            
+            board.canvas.width = size;
+            board.canvas.height = size;
+
+            board._setSize(size);
+
+            //set Y=0 at the bottom of the board
+            board.ctx.translate(0, board.getHeight() );
+            board.ctx.scale (1, -1);
+        }
+        
+        resize();
+
+        window.addEventListener("resize", resize, false);
+    }
+    
+    _setSize(size){
+        //size 500
+        config.columnWidth = Math.round(size / 7.5); //65
+        config.rowHeight   = Math.round(size / 7.5); //65
+        config.cellRadius  = Math.round(size / 20) ; //25;
+        config.vMargin     = config.cellRadius;
+        config.hMargin     = Math.round(config.cellRadius * 2 / 3);
     }
 
     forEachCell(callback){
@@ -62,21 +105,12 @@ class Board {
         return this.selectedColumn;
     }
 
-    setSize(size){
-        //size 500
-        config.columnWidth = Math.round(size / 7.5); //65
-        config.rowHeight   = Math.round(size / 7.5); //65
-        config.cellRadius  = Math.round(size / 20) ; //25;
-        config.vMargin     = config.cellRadius;
-        config.hMargin     = Math.round(config.cellRadius * 2 / 3);
-    }
 
     /**
      * 
-     * @param {*} ctx 
      */    
-    display(ctx) {
-
+    display() {
+        let ctx = this.ctx;
         // Clear the canvas and redraw all the board 
         ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
 
@@ -150,28 +184,20 @@ class Board {
     /**
      * 
      */
-    displayMousePosition(currentPlayer, mousePos, ctx){
-        // ctx.clearRect(
-        //     this.getXLeft(), 
-        //     this.getYUp(), 
-        //     this.getXRight(),
-        //     this.getHeight());
-
+    displaySelectedColumn(currentPlayer){
+        let ctx = this.ctx;
         //show column selection 
-        if ( ! mousePos.out){
+        if (this.model.selectedColumn){
 
-            if (this.model.selectedColumn){
-
-                ctx.fillStyle = currentPlayer.color;
-                ctx.beginPath();
-                ctx.arc(
-                    getX(this.model.selectedColumn), 
-                    this.getYUp(), 
-                    config.cellRadius,
-                    0 , 
-                    Math.PI);
-                ctx.fill();
-            }
+            ctx.fillStyle = currentPlayer.color;
+            ctx.beginPath();
+            ctx.arc(
+                getX(this.model.selectedColumn), 
+                this.getYUp(), 
+                config.cellRadius,
+                0 , 
+                Math.PI);
+            ctx.fill();
         }
     }
 
