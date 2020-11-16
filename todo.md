@@ -1,0 +1,17 @@
+
+- finish PWA
+- add capability to change the column/row numbers
+- change name to XinARow
+- add clock / timer
+- set level as name for the computer
+- set current player in header
+- compute statistics on the game
+- store statistics and provide insights
+- add hints 
+- add force computer to play at a given column
+- animate falling token
+- sounds ?
+- 2 players in remote
+- background when a player win
+- persist settings (type of player, level...)
+- factorize color

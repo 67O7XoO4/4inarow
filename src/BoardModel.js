@@ -1,6 +1,6 @@
 
 //Empty cell
-const EMPTY = { color : "rgb(245, 245, 245)", name : '-'};
+const EMPTY = { color : "rgb(230, 230, 230)", name : '-'};
 
 const config = {
     nbCellsToWin: 4,

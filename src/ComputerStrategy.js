@@ -32,13 +32,19 @@ class ComputerStrategy  {
         return promise;
     };
 
+    /**
+     * do nothing. computer cannot be interrupted (TO BE DONE)
+     */
     interrupt(){
         //this.interrupted = true;
     }
 
     /**
+     * computer specific method. (usefull for unit test)
+     * Run the algorithym to find the best column to play on the given board model.
      * 
      * @param {*} model 
+     * @param depth
      */
     pickColumn(model, depth){
 
@@ -256,5 +262,4 @@ export {
     EVEN_SCORE,
     EMTPY_CELL_SCORE,
     SAME_PLAYER_CELL_SCORE
-    
 };

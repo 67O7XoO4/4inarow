@@ -5,9 +5,10 @@ import * as Player from './Player.js';
 
 import i18n from './i18n/I18n.js'
 
+const RED_CONFIG = {   color : "rgb(255, 100, 100)", key : "RED"   }; //#FF6464
+const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , key : "YELLOW"  };
 
-const RED_CONFIG = {   color : "rgb(255, 100, 100)", nameKey : "RED"   };
-const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , nameKey : "YELLOW"  };
+const NO_PLAYER = {key : ''};
 
 let players = [];
 let currentPlayer = null;
@@ -51,13 +52,6 @@ function initCanvas() {
     window.addEventListener("resize", resize, false);
 }
 
-function nextPlayer(){
-    currentPlayer = currentPlayer.nextPlayer;
-    currentPlayer.isCurrentPlayer = true;
-    currentPlayer.nextPlayer.isCurrentPlayer = false;
-
-}
-
 /**
  * Let's make the current player play at the selected column
  * Chek if he wins
@@ -70,6 +64,7 @@ function play(boardModel){
     if ( boardModel.checkIfLastPlayWin()){
         //
         displayMsg('playerWin', {name: currentPlayer.name});
+        fourInARowApp.winner = currentPlayer;
 
     }else if ( boardModel.isComplete()){
         //even game
@@ -77,7 +72,7 @@ function play(boardModel){
         
     }else{
         //next  
-        nextPlayer();
+        currentPlayer = currentPlayer.switchToNextPlayer();
 
         nextMove(boardModel);
     }
@@ -113,16 +108,15 @@ function displayMsg(msgKey, params){
     fourInARowApp.snackbar =  {msg: i18n.t(msgKey, params), show : true };
 }
 
-RED_CONFIG.name = i18n.t(RED_CONFIG.nameKey);
-YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.nameKey);
+RED_CONFIG.name = i18n.t(RED_CONFIG.key);
+YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.key);
 
 players.push(new Player.Player(RED_CONFIG, true));
 players.push(new Player.Player(YELLOW_CONFIG, false));
 
 currentPlayer = players[0];
-currentPlayer.isCurrentPlayer = true;
 currentPlayer.setNextPlayer(players[1]);
-currentPlayer.nextPlayer.isCurrentPlayer = false;
+
 
 // init GUI
 Vue.component('user-board', {
@@ -156,13 +150,21 @@ var fourInARowApp = new Vue({
     el: '#fourInARowApp',
     data: {
         players: players,
+        winner : NO_PLAYER,
         boardModel : boardModel,
-        langs : i18n. availableLocales,
+        langs : i18n.availableLocales,
+
+        //
         snackbar : {msg : "", show : false},
         menu: {  show : false},
         showRestartConfirm : false,
     },
     computed: {
+        winnerClass(){
+            let classes = {'win' : this.winner.key != ''};
+            classes[this.winner.key] = true;
+            return classes;
+        },
         isUndoDisabled() {
             return boardModel.isEmpty();
         }
@@ -181,7 +183,8 @@ var fourInARowApp = new Vue({
             let wasWinning = board.model.undoLastPlay();
             
             if ( ! wasWinning){
-                nextPlayer();
+                //in fact, it should be previousPlayer() but it's the same !
+                currentPlayer = currentPlayer.switchToNextPlayer();
             }
             if ( ! currentPlayer.isHuman()){
                 if (! currentPlayer.suspended){
@@ -191,11 +194,10 @@ var fourInARowApp = new Vue({
             }else{
                 nextMove(board.model);
             }
+            this.winner = NO_PLAYER;
         },
 
         checkRestart: function () {
-            
-            currentPlayer.interrupt();
             
             if (board.model.isComplete()
                 || board.model.isEmpty()
@@ -215,6 +217,7 @@ var fourInARowApp = new Vue({
             nextMove(board.model);
 
             displayMsg('newGameMsg', {name: currentPlayer.name});
+            this.winner = NO_PLAYER;
         },
     }
 })
@@ -227,7 +230,8 @@ window.onload = () => {
 
     //start the game
     nextMove(board.model);
-   displayMsg('newGameMsg', {name: currentPlayer.name});
+    displayMsg('newGameMsg', {name: currentPlayer.name});
+    fourInARowApp.winner = NO_PLAYER;
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);

@@ -6,7 +6,7 @@ const config = {
     hMargin      : 22,
     vMargin      : 22,
     edgeCurve   : 15,
-    boardColor  : "rgb(30, 130, 220)"
+    boardColor  : "rgb(30, 130, 220)" //#1E82DC
 };
 
 

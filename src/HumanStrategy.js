@@ -1,4 +1,7 @@
 
+/**
+ * 
+ */
 class HumanStrategy  {
 
     constructor(){
@@ -12,6 +15,8 @@ class HumanStrategy  {
             //reset the selected column to the current mouse position
             board.setSelectedColumn(mousePos.x);
         
+            //listen to mouse event, find the selected column and play
+
             let mousemove = (evt)=>{
                 var rect =  boardCanvas.getBoundingClientRect();
         
@@ -29,7 +34,7 @@ class HumanStrategy  {
             let click = ()=> {
                 if (model.selectedColumn){
 
-                    //current player has played, let's see if he wins 
+                    //current player has played, let's clean the listener and resolve the promise 
                     removeEventListeners(false);
                 }
             };
@@ -51,6 +56,7 @@ class HumanStrategy  {
     } 
 
     interrupt(){
+        //we have been interrupted, we clean the listener and abort (reject) the play
         this.removeEventListeners(true);
     }
 };

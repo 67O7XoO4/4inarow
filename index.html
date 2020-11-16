@@ -2,7 +2,28 @@
 <html>
   <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimal-ui">
+    <meta name="description" content="'4 in a row' game">
+    <meta name="theme-color" content="#FF6464"/>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json" />
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/images/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/images/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/images/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/images/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/images/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/images/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/images/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/images/ms-icon-144x144.png">
 
     <title>4 in a ROW</title>
     
@@ -34,6 +55,7 @@
 
     .md-card.user-card {
       max-width: 250px; 
+      background: #D7D7D7;
     }
     .md-app-content .md-card.user-card {
       margin-left: 8px;
@@ -43,19 +65,51 @@
       border: solid 1px;
     }
 
-    .board-card  {
+    .md-card.board-card  {
       width: min(90vw, 80vh);
       height: min(90vw, 80vh);
       max-height: 550px; 
       max-width: 550px; 
-      background-color: rgb(245, 245, 245); 
+      background-color: rgb(230, 230, 230); 
     }
- 
+    .md-content.md-theme-default{
+      background: transparent;
+    }
+
+    .md-app.md-theme-default {
+      background: content-box radial-gradient(white, rgb(30, 130, 220));
+    }
+
+    .md-app.md-theme-default.YELLOW.win {
+      background: radial-gradient(circle at top left, rgb(255, 255, 0), rgb(30, 130, 220));
+    }
+    .md-app.md-theme-default.RED.win {
+      background: radial-gradient(circle at top left, rgb(255, 100, 100), rgb(30, 130, 220));
+    }
+    .md-app.md-theme-default.win {
+      animation: gradient 4s ease-in-out infinite;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-size: 200% 200%;
+        background-position: 100% 100%;
+      }
+      50% {
+        background-size: 200% 200%;
+        background-position: 0% 0%;
+      }
+      100% {
+        background-size: 200% 200%;
+        background-position: 100% 100%;
+      }
+    }
+
    </style>
    <script type="text/x-template" id="user-board-template">
     
       <md-card class="user-card"
-           :class="{'md-elevation-6' : player.isCurrentPlayer, 'current-player' : player.isCurrentPlayer,  }"
+           :class="{'md-elevation-6' : player.isCurrentPlayer, 'current-player' : player.isCurrentPlayer  }"
            :style="{'border-color' : player.color}">
         <md-card-header>
           <md-card-header-text >
@@ -85,7 +139,7 @@
 
               <md-list v-show="! player.isHuman()">
                 <md-subheader>{{$t('depth')}}</md-subheader>
-                <md-list-item v-for="i in [4,5,6,7,8,9]" >
+                <md-list-item v-for="i in [3, 4,5,6,7,8,9]" >
                   <md-radio v-model="player.strategy.depth" :value="i" :key="i" />
                   <span class="md-list-item-text"> {{ $t('level_' + i) }}</span>
                   <md-badge class="md-primary" :md-content="i" :title="$t('level_' + i)" />
@@ -127,18 +181,21 @@
       </md-card>
       
     </script>
+
   </head>
 
 
   <body>
+    
+    <noscript>'4 in a row' Can't be run without javascript :(</noscript>
 
     <div id="fourInARowApp" class="page-container md-layout-row" v-cloak>
-      <md-app>
+      <md-app v-bind:class="winnerClass"> <!-- {'win' : winner.key != ''} -->
         <md-app-toolbar class="md-primary">
           <md-button class="md-icon-button" @click="menu.show = true">
             <md-icon>menu</md-icon>
           </md-button>
-          <span class="md-title">{{ $t("title") }}</span>
+          <span class="md-title">{{ $t("title") }} </span><span>{{winner.key}}</span>
         </md-app-toolbar>
 
         <md-app-drawer  md-swipeable :md-active.sync="menu.show">
@@ -174,6 +231,7 @@
 
                 <!-- start a new game -->
                 <md-button  class="md-dense"
+                            :class="{'md-raised': winner.key != '','md-accent': winner.key != ''}"
                             @click="checkRestart"
                             :title="$t('cancelRestartTitle')" >
                   <md-icon>play_circle_outline</md-icon>{{ $t("newGame") }}
