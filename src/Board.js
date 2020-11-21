@@ -43,7 +43,9 @@ function rectArrondi(ctx, x, y, largeur, hauteur, rayon) {
     ctx.fill();
 }
 
-
+/**
+ * Board of the game. It must be drawned in a canvas
+ */
 class Board {
     
     model = null;
@@ -109,7 +111,7 @@ class Board {
     /**
      * 
      */    
-    display() {
+    display(currentPlayer) {
         let ctx = this.ctx;
         // Clear the canvas and redraw all the board 
         ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
@@ -178,13 +180,15 @@ class Board {
                 ctx.shadowColor='rgba(0,0,0,0)';
         
         });
+
+        this._displaySelectedColumn(currentPlayer);
     }
 
 
     /**
-     * 
+     * private
      */
-    displaySelectedColumn(currentPlayer){
+    _displaySelectedColumn(currentPlayer){
         let ctx = this.ctx;
         //show column selection 
         if (this.model.selectedColumn){

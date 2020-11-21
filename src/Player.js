@@ -9,7 +9,7 @@ import * as ComputerStrategy from './ComputerStrategy.js';
  * a Strategy must looks like:
  *  {
  *      isHuman
- *      Promise atYourTurn(model, board) //the promise is resolved when the player played
+ *      Promise atYourTurn(model) //the promise is resolved when the player played
  *      interrupt()
  *  }
  * 
@@ -33,11 +33,9 @@ class Player {
         //color
 
         this.suspended = false;
-        if (isHuman){
-            this.strategy = new HumanStrategy.HumanStrategy();
-        }else{
-            this.strategy = new ComputerStrategy.ComputerStrategy(this);
-        }
+
+        this._changeStrategy(isHuman);
+
         if (typeof config == "string"){
             this.name = config;
         }else{
@@ -49,8 +47,12 @@ class Player {
      * change the strategy and, thus, the type of player (human/computer)
      */
     changeStrategy(){
-        if ( ! this.isHuman()){
-            this.strategy = new HumanStrategy.HumanStrategy();
+        this._changeStrategy( ! this.isHuman())
+    }
+
+    _changeStrategy(isHuman){
+        if ( isHuman ){
+            this.strategy = new HumanStrategy.HumanStrategy(this.board);
         }else{
             this.strategy = new ComputerStrategy.ComputerStrategy(this);
         }
@@ -60,14 +62,20 @@ class Player {
         return this.strategy.isHuman;
     }
 
+    /**human need a board to play */
+    setBoard(board){
+        this.board = board;
+        //update strategy with the new board
+        this._changeStrategy(this.isHuman())
+    }
+
     /**
      * Call by the app when the player is the current player and should play
      * 
      * @param {*} model 
-     * @param {*} board 
      */
-    atYourTurn(model, board ){
-        return this.strategy.atYourTurn(model, board);
+    atYourTurn(model){
+        return this.strategy.atYourTurn(model);
     } 
 
     /**

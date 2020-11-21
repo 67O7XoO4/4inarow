@@ -1,7 +1,7 @@
 
 - finish PWA
 - add capability to change the column/row numbers
-- change name to XinARow
+- change name to XinARow ("4 in a row" copyrighted ? )
 - add clock / timer
 - set level as name for the computer
 - set current player in header
@@ -12,6 +12,8 @@
 - animate falling token
 - sounds ?
 - 2 players in remote
-- background when a player win
 - persist settings (type of player, level...)
 - factorize color
+- fix computer with simple aligned 3 tokens and depth= 3
+- review user board L&F 
+- fix computer playing first column when loosing

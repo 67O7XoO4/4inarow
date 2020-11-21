@@ -2,7 +2,7 @@
 const MAX_SCORE = 1000;
 const CANT_PLAY_SCORE = MAX_SCORE + 1;
 
-const EVEN_SCORE = 0;
+const DRAW_SCORE = 0;
 const EMTPY_CELL_SCORE = 1;
 const SAME_PLAYER_CELL_SCORE = 4;
 
@@ -80,9 +80,9 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth){
             };
 
     }else if (model.isComplete()){
-        //even game
+        //draw game
         return {
-            score: EVEN_SCORE , 
+            score: DRAW_SCORE , 
             num : model.getLastPlayedCell().column.num
         };
 
@@ -259,7 +259,7 @@ export {
     evaluate,
     evaluateCell, 
     MAX_SCORE,
-    EVEN_SCORE,
+    DRAW_SCORE,
     EMTPY_CELL_SCORE,
     SAME_PLAYER_CELL_SCORE
 };

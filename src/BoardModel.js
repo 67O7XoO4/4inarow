@@ -213,6 +213,10 @@ class BoardModel {
         let cellToTest = this.getLastPlayedCell();
         let winningCells = [];
 
+        if (! cellToTest) {
+            return false;
+        }
+        
         for(; i<config.nbCellsToWin; i++){
             if (!cellToTest || cellToTest.value != this.getLastPlayedCell().value){
                 break;

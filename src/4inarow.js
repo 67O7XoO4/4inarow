@@ -1,104 +1,43 @@
 import * as Board from './Board.js';
 import * as BoardModel from './BoardModel.js';
-
-import * as Player from './Player.js';
+import * as Game from './Game.js';
 
 import i18n from './i18n/I18n.js'
 
-const RED_CONFIG = {   color : "rgb(255, 100, 100)", key : "RED"   }; //#FF6464
-const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , key : "YELLOW"  };
 
 const NO_PLAYER = {key : ''};
 
-let players = [];
-let currentPlayer = null;
-
-let board = null;
-
-/**
- * 
- */
-function startGame(){
-    
-    currentPlayer.interrupt();
-            
-    board.model.clearAll();
-    //restart the game
-    nextMove(board.model);
-
-    displayMsg('newGameMsg', {name: currentPlayer.name});
-    fourInARowApp.winner = NO_PLAYER;
-}
-
-/**
- * Let's make the current player play at the selected column
- * Chek if he wins
- * or else ask the next user to play
- */
-function play(boardModel){
-    
-    boardModel.playAtSelectedColumn(currentPlayer);
-
-    if ( boardModel.checkIfLastPlayWin()){
-        //
-        displayMsg('playerWin', {name: currentPlayer.name});
-        fourInARowApp.winner = currentPlayer;
-
-    }else if ( boardModel.isComplete()){
-        //even game
-        displayMsg('evenGame');
-        
-    }else{
-        //switch to next player 
-        currentPlayer = currentPlayer.switchToNextPlayer();
-
-        nextMove(boardModel);
-    }
-}
-
-/**
- * check for player suspension and ask him to play otherwise
- */
-function nextMove(boardModel){
-
-    if ( ! currentPlayer.suspended){
-            
-        currentPlayer.atYourTurn(boardModel, board)
-        //when ready, play the next move
-        .then(()=> play(boardModel) )
-        .catch(()=>{
-            console.log("interrupted");
-        })
-    }else{
-        //remind that the current player is paused
-        displayMsg('playerPaused', {name: currentPlayer.name});
-    }
-}
-
-// Main animation loop
-function animationLoop() {
-            
-    board.display();
-    board.displaySelectedColumn(currentPlayer);
-
-    // Schedule the next frame
-    window.requestAnimationFrame(animationLoop);
-}
 
 function displayMsg(msgKey, params){    
     fourInARowApp.snackbar =  {msg: i18n.t(msgKey, params), show : true };
 }
+ 
+
+const actions ={};
+
+actions[Game.EVENTS.GAME_STARTED] = ()=>{
+    displayMsg('newGameMsg', {name: game.currentPlayer.name});
+    fourInARowApp.winner = NO_PLAYER;
+}
+
+actions[Game.EVENTS.PLAYER_WIN] = ()=>{
+    displayMsg('playerWin', {name: game.currentPlayer.name});
+    fourInARowApp.winner = game.currentPlayer;
+}
+
+actions[Game.EVENTS.EVEN_GAME] = ()=>{
+    displayMsg('drawGame');
+}
+
+actions[Game.EVENTS.PLAYER_SUSPENDED] = ()=>{
+    //remind that the current player is paused
+    displayMsg('playerPaused', {name: game.currentPlayer.name});
+}
 
 
-//init players
-RED_CONFIG.name = i18n.t(RED_CONFIG.key);
-YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.key);
-
-players.push(new Player.Player(RED_CONFIG, true));
-players.push(new Player.Player(YELLOW_CONFIG, false));
-
-currentPlayer = players[0];
-currentPlayer.setNextPlayer(players[1]);
+let game = new Game.Game(event=>{
+    actions[event].call();
+}, i18n);
 
 
 // init GUI
@@ -132,7 +71,7 @@ var fourInARowApp = new Vue({
     i18n,
     el: '#fourInARowApp',
     data: {
-        players: players,
+        players: game.players,
         winner : NO_PLAYER,
         langs : i18n.availableLocales,
 
@@ -149,7 +88,7 @@ var fourInARowApp = new Vue({
             return classes;
         },
         isUndoDisabled() {
-            return board != null && board.model.isEmpty();
+            return ! game.isStarted() ;
         }
     },
 
@@ -157,57 +96,60 @@ var fourInARowApp = new Vue({
 
         //resume game after a player has been suspended
         resume : function(){
-            nextMove(board.model);
+            game.nextMove();
         },
 
         //undo last move (even if won)
         undo: function () {
 
-            currentPlayer.interrupt();
+            game.undoLastMove();
 
-            let wasWinning = board.model.undoLastMove();
-            
-            if ( ! wasWinning){
-                //in fact, it should be previousPlayer() but it's the same !
-                currentPlayer = currentPlayer.switchToNextPlayer();
-            }
-            if ( ! currentPlayer.isHuman()){
-                if (! currentPlayer.suspended){
-                    currentPlayer.suspended = true;                
-                    displayMsg('playerPaused', {name: currentPlayer.name});
+            if ( ! game.currentPlayer.isHuman()){
+                if (! game.currentPlayer.suspended){
+                    game.currentPlayer.suspended = true;                
+                    displayMsg('playerPaused', {name: game.currentPlayer.name});
                 }
             }else{
-                nextMove(board.model);
+                game.nextMove();
             }
+
+            //in case the last move was a winning one
             this.winner = NO_PLAYER;
         },
 
-        //cancel current game and restart a new after a confirm 
+        //cancel current game and restart a new one after a confirm 
         checkRestart: function () {
-            
-            if (board.model.isComplete()
-                || board.model.isEmpty()
-                || board.model.checkIfLastPlayWin()){
-                this.onConfirmRestart();
-            }else{
+
+            if (game.isStarted()  && ! game.isOver() ){
                 //ask for a confirm
                 this.showRestartConfirm = true
+            }else{
+                this.onConfirmRestart();
             }
         },
 
         onConfirmRestart: function () {
-            startGame();
+            game.start();
         },
     }
 })
 
-
 //bootstrap display and start game
 window.onload = () => {
 
-    board = new Board.Board(new BoardModel.BoardModel(), "boardCanvas");
+    let board = new Board.Board(new BoardModel.BoardModel(), "boardCanvas");
 
-    startGame();
+    game.start(board);
+
+    
+    // Main animation loop
+    function animationLoop() {
+                
+        board.display(game.currentPlayer);
+
+        // Schedule the next frame
+        window.requestAnimationFrame(animationLoop);
+    }
 
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);

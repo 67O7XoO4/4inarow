@@ -8,7 +8,7 @@ export default {
 
     depth :"Game level",
 
-    evenGame : 'Even game :(',
+    drawGame : 'Draw game :(',
 
     level_4 :"Newbie",
     level_5 :"Rookie",

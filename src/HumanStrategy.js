@@ -7,33 +7,34 @@ let mousePos = {x: 0, y:0, out: true}; //out = mouse over or not
  */
 class HumanStrategy  {
 
-    constructor(){
+    constructor(board){
         this.isHuman = true;
+        this.board = board;
     }
 
-    atYourTurn(model, board){
+    atYourTurn(model){
     
         return new Promise((resolve, reject)=>{
 
             //reset the selected column to the current mouse position
-            board.setSelectedColumn(mousePos.x);
+            this.board.setSelectedColumn(mousePos.x);
         
             //listen to mouse event, find the selected column and play
 
             let mousemove = (evt)=>{
-                var rect =  board.canvas.getBoundingClientRect();
+                var rect =  this.board.canvas.getBoundingClientRect();
         
                 mousePos.out = false;
         
                 mousePos.x = evt.clientX - rect.left;
                 mousePos.y = evt.clientY - rect.top;
         
-                board.setSelectedColumn(mousePos.x);
+                this.board.setSelectedColumn(mousePos.x);
                 //console.debug(mousePos);
             };
-            board.canvas.addEventListener('mousemove', mousemove, false);
+            this.board.canvas.addEventListener('mousemove', mousemove, false);
             let mouseout =  ()=> (mousePos.out = true);
-            board.canvas.addEventListener('mouseout', mouseout, false);
+            this.board.canvas.addEventListener('mouseout', mouseout, false);
             let click = ()=> {
                 if (model.selectedColumn){
 
@@ -41,12 +42,12 @@ class HumanStrategy  {
                     removeEventListeners(false);
                 }
             };
-            board.canvas.addEventListener('click', click, false);
+            this.board.canvas.addEventListener('click', click, false);
 
             let removeEventListeners = (isInterrupted)=>{
-                board.canvas.removeEventListener('mousemove', mousemove, false);
-                board.canvas.removeEventListener('mouseout', mouseout, false);
-                board.canvas.removeEventListener('click', click, false);
+                this.board.canvas.removeEventListener('mousemove', mousemove, false);
+                this.board.canvas.removeEventListener('mouseout', mouseout, false);
+                this.board.canvas.removeEventListener('click', click, false);
 
                  this.removeEventListeners = null;
 

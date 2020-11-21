@@ -8,7 +8,7 @@ export default {
 
     depth :"Niveau de jeu",
 
-    evenGame : 'Match nul :(',
+    drawGame : 'Match nul :(',
 
     level_4 :"Débutant",
     level_5 :"Novice",
