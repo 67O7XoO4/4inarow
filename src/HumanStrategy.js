@@ -10,11 +10,13 @@ class HumanStrategy  {
     constructor(board){
         this.isHuman = true;
         this.board = board;
+
+        this._currentPromise = null;
     }
 
     atYourTurn(model){
     
-        return new Promise((resolve, reject)=>{
+        this._currentPromise = new Promise((resolve, reject)=>{
 
             //reset the selected column to the current mouse position
             this.board.setSelectedColumn(mousePos.x);
@@ -56,15 +58,21 @@ class HumanStrategy  {
                 }else{
                     resolve();
                 }
+                this._currentPromise = null;
             };
             this.removeEventListeners = removeEventListeners;
-
         });
+        return this._currentPromise;
     } 
 
+    /**
+     * 
+     */
     interrupt(){
         //we have been interrupted, we clean the listener (if exist) and abort (reject) the play
         if (this.removeEventListeners) this.removeEventListeners(true);
+
+        return this._currentPromise || Promise.resolve();
     }
 };
 

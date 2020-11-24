@@ -2,9 +2,9 @@
 - finish PWA
 - add capability to change the column/row numbers
 - change name to XinARow ("4 in a row" copyrighted ? )
-- add clock / timer
+- add timer (if enabled) if player is becoming a human
+- add splash screen at game startup and game finish (at least when timer is enabled)
 - set level as name for the computer
-- set current player in header
 - compute statistics on the game
 - store statistics and provide insights
 - add hints 

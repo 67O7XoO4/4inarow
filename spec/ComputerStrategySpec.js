@@ -10,9 +10,9 @@ describe("ComputerStrategy", ()=> {
 
     let boardModel = new BoardModel.BoardModel();
 
-    let cp = new Player.Player("cp", false);
-    let p2 = new Player.Player("p2", true);
-    cp.setNextPlayer(p2);
+    let cp = new Player.Player("cp", {isHuman : false});
+    let p2 = new Player.Player("p2", {isHuman : true});
+    cp.initPlayer(p2);
 
     let score = 0;
     let scores = [];

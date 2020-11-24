@@ -1,5 +1,7 @@
 import * as Player from './Player.js';
 
+import * as Settings from './Settings.js';
+
 const RED_CONFIG = {   color : "rgb(255, 100, 100)", key : "RED"   }; //#FF6464
 const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , key : "YELLOW"  };
 
@@ -15,7 +17,7 @@ class Game {
     players = [];
     currentPlayer = null;
 
-    constructor( gameListener, i18n){
+    constructor(gameListener, settings, i18n){
 
         this.gameListener =  ()=>{} ;
         if(gameListener){
@@ -25,11 +27,21 @@ class Game {
         RED_CONFIG.name = i18n.t(RED_CONFIG.key);
         YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.key);
 
-        this.players.push(new Player.Player(RED_CONFIG, true));
-        this.players.push(new Player.Player(YELLOW_CONFIG, false));
+        settings = Settings.init(settings);
+
+        let timerEnabled = settings.listen('timerEnabled', (newval)=>{
+            this.players[0].timer.enable(newval);
+            this.players[1].timer.enable(newval );
+        }, true);
+
+        RED_CONFIG.timerEnabled = timerEnabled;
+        YELLOW_CONFIG.timerEnabled = timerEnabled;
+
+        this.players.push(new Player.Player(RED_CONFIG, settings.red));
+        this.players.push(new Player.Player(YELLOW_CONFIG, settings.yellow));
 
         this.currentPlayer = this.players[0];
-        this.currentPlayer.setNextPlayer(this.players[1]);
+        this.currentPlayer.initPlayer(this.players[1]);
     }
     
     /**
@@ -67,21 +79,25 @@ class Game {
      */
     start(board){
         
-        this.currentPlayer.interrupt();
-        
-        if (board){
-            //human need a board to play
-            this.players[0].setBoard(board);
-            this.players[1].setBoard(board);
+        this.currentPlayer.interrupt()
+        .finally(()=>{
             
-            this.model = board.model;
-        }
-        this.model.clearAll();
-        //restart the game
-        this.nextMove();
+            this.players[0].timer.reset();
+            this.players[1].timer.reset();
+            
+            if (board){
+                //human need a board to play
+                this.players[0].setBoard(board);
+                this.players[1].setBoard(board);
+                
+                this.model = board.model;
+            }
+            this.model.clearAll();
+            //restart the game
+            this.nextMove();
 
-        this.gameListener.call(null, [EVENTS.GAME_STARTED]);
-
+            this.gameListener.call(null, [EVENTS.GAME_STARTED]);
+        });
     }
 
         
@@ -103,7 +119,6 @@ class Game {
         }else if ( this.model.isComplete()){
             //draw game
             this.gameListener.call(null, [EVENTS.DRAW_GAME]);
-            
             
         }else{
             //switch to next player 
@@ -130,13 +145,14 @@ class Game {
     }
 
     undoLastMove(){
-        this.currentPlayer.interrupt();
-
-        let wasWinning = this.model.undoLastMove();
-        if ( ! wasWinning){
-            //in fact, it should be previousPlayer() but it's the same !
-            this.currentPlayer = this.currentPlayer.switchToNextPlayer();
-        }
+        this.currentPlayer.interrupt()
+        .finally(()=>{
+            let wasWinning = this.model.undoLastMove();
+            if ( ! wasWinning){
+                //in fact, it should be previousPlayer() but it's the same !
+                this.currentPlayer = this.currentPlayer.switchToNextPlayer();
+            }
+        });
     }
 
 }

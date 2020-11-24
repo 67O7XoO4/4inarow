@@ -1,4 +1,6 @@
 
+import * as Settings from './Settings.js';
+
 //Empty cell
 const EMPTY = { color : "rgb(230, 230, 230)", name : '-'};
 
@@ -23,10 +25,10 @@ class Cell {
 }
 
 class Column {
-    constructor(num){
+    constructor(num, nbRows){
         this.num = num;
         //fill column with nbRows cells
-        this.cells = Array(config.nbRows).fill().map((v,i)=>(new Cell(this, i)));
+        this.cells = Array(nbRows).fill().map((v,i)=>(new Cell(this, i)));
     }
 
     isEmpty(){
@@ -61,9 +63,10 @@ class BoardModel {
     columns = null;
     playedCells = [];
 
-    constructor(){
+    constructor(settings = config){
+        this.settings = Settings.init(settings);
         //fill board with columns
-        this.columns = Array(config.nbColumns).fill().map((v,i)=>(new Column(i)));
+        this.columns = Array(this.settings.nbColumns).fill().map((v,i)=>(new Column(i, this.settings.nbRows)));
     }
 
     clone(){
@@ -217,14 +220,14 @@ class BoardModel {
             return false;
         }
         
-        for(; i<config.nbCellsToWin; i++){
+        for(; i < this.settings.nbCellsToWin; i++){
             if (!cellToTest || cellToTest.value != this.getLastPlayedCell().value){
                 break;
             }
             winningCells.push(cellToTest);  
             cellToTest = this.getPrevious(cellToTest);
         }
-        if (i==config.nbCellsToWin){
+        if (i == this.settings.nbCellsToWin){
             winningCells.forEach(cell=>cell.isWinning = true);
             return true;
         }
@@ -254,7 +257,7 @@ class BoardModel {
         var cellToTest = left.apply(this, [cell]);
         if (cellToTest){
             
-            for(; nbLeft < config.nbCellsToWin-1; nbLeft++){
+            for(; nbLeft < this.settings.nbCellsToWin-1; nbLeft++){
                 if (!cellToTest || cellToTest.value != cell.value){
                     break;
                 }
@@ -267,7 +270,7 @@ class BoardModel {
         let nbRight=0;
         cellToTest = right.apply(this, [cell]);
         if (cellToTest){
-            for(; nbRight < config.nbCellsToWin-1; nbRight++){
+            for(; nbRight < this.settings.nbCellsToWin-1; nbRight++){
                 if (!cellToTest || cellToTest.value != cell.value){
                     break;
                 }
@@ -277,7 +280,7 @@ class BoardModel {
         }
 
         //
-        let isWinning = (nbRight + nbLeft + 1 >= config.nbCellsToWin);
+        let isWinning = (nbRight + nbLeft + 1 >= this.settings.nbCellsToWin);
 
         if (isWinning){
             winningCells.push(cell);
@@ -293,7 +296,7 @@ class BoardModel {
     }
 
     getNext(cell){
-        if (cell.num + 1 == config.nbRows ) return null;
+        if (cell.num + 1 == this.settings.nbRows ) return null;
         return cell.column.cells[cell.num +1];
     }
 
@@ -303,7 +306,7 @@ class BoardModel {
     }
 
     getRightSibling(cell){
-        if (cell.column.num + 1 == config.nbColumns ) return null;
+        if (cell.column.num + 1 == this.settings.nbColumns ) return null;
         return  this.columns[cell.column.num +1].cells[cell.num];
     }
     
@@ -313,22 +316,22 @@ class BoardModel {
     }
 
     getRightPreviousSibling(cell){
-        if (cell.column.num + 1 == config.nbColumns || cell.num == 0) return null;
+        if (cell.column.num + 1 == this.settings.nbColumns || cell.num == 0) return null;
         return  this.columns[cell.column.num +1].cells[cell.num-1];
     }
 
     getLeftNextSibling(cell){
-        if (cell.column.num == 0 || cell.num+1 == config.nbRows) return null;
+        if (cell.column.num == 0 || cell.num+1 == this.settings.nbRows) return null;
         return  this.columns[cell.column.num -1].cells[cell.num+1];
     }
 
     getRightNextSibling(cell){
-        if (cell.column.num + 1 == config.nbColumns || cell.num+1 == config.nbRows) return null;
+        if (cell.column.num + 1 == this.settings.nbColumns || cell.num+1 == this.settings.nbRows) return null;
         return  this.columns[cell.column.num +1].cells[cell.num+1];
     }
 
     getConfig(){
-        return config;
+        return this.settings;
     }
 }
 

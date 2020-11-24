@@ -4,18 +4,19 @@ export default {
     cancelRestartTitle : "Cancel current game and start a new one",
     changePlayerTypeTitle : 'Change human/computer player',
     chooseLang :"Choose you language",
+    close : "Close",
     confirm :"Confirm",
 
     depth :"Game level",
 
     drawGame : 'Draw game :(',
 
-    level_4 :"Newbie",
-    level_5 :"Rookie",
-    level_6 :"Trainee",
-    level_7 :"Professional",
-    level_8 :"Major",
-    level_9 :"Grand master",
+    level_3 :"Newbie",
+    level_4 :"Rookie",
+    level_5 :"Trainee",
+    level_6 :"Professional",
+    level_7 :"Major",
+    level_8 :"Grand master",
 
     newGame : 'New game',
     newGameMsg :  'New game started. {name} to play',
@@ -36,6 +37,7 @@ export default {
 
     undo : "Undo",
     undoTitle : "Undo last move",
+    useTimer : "Play with a timer",
 
     YELLOW : 'YELLOW',
 

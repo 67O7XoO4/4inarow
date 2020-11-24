@@ -15,13 +15,16 @@ class ComputerStrategy  {
      */
     depth = 5 ; 
  
-    constructor(player){
+    constructor(player, depth){
         this.isHuman = false;
         this.player = player;
+        this.depth = depth;
+        
+        this._currentPromise = null;
     }
 
     atYourTurn(model){
-        let promise = new Promise((resolve) => {
+        this._currentPromise = new Promise((resolve) => {
             setTimeout(()=>{
                 model.setSelectedColumn(this.pickColumn(model,  this.depth));
 
@@ -29,7 +32,7 @@ class ComputerStrategy  {
             }, 10);
         });
 
-        return promise;
+        return this._currentPromise;
     };
 
     /**
@@ -37,6 +40,7 @@ class ComputerStrategy  {
      */
     interrupt(){
         //this.interrupted = true;
+        return this._currentPromise || Promise.resolve();
     }
 
     /**

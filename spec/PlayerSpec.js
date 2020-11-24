@@ -21,7 +21,7 @@ describe("Player", ()=> {
   
   it("should be able to be a human", ()=>{
 
-    let p = new Player.Player("thePlayer", true);
+    let p = new Player.Player("thePlayer", {isHuman : true});
     
     expect(p).toBeInstanceOf(Player.Player);
     expect(p.name).toBe("thePlayer");
@@ -42,7 +42,7 @@ describe("Player", ()=> {
             color : '#ffffff' ,
     };
 
-    let p = new Player.Player(config, true);
+    let p = new Player.Player(config, {isHuman : true});
     
     expect(p).toBeInstanceOf(Player.Player);
     expect(p.name).toBe("AnotherPlayer");
@@ -58,11 +58,11 @@ describe("Player", ()=> {
 
     expect(p.isHuman()).toBeFalse();
 
-    p.changeStrategy();
+    p.settings.isHuman = true;
 
     expect(p.isHuman()).toBeTrue();
 
-    p.changeStrategy();
+    p.settings.isHuman = false;
 
     expect(p.isHuman()).toBeFalse();
 
@@ -78,7 +78,7 @@ describe("Player", ()=> {
       expect(p1.isCurrentPlayer).toBeFalse();
       expect(p2.isCurrentPlayer).toBeFalse();
 
-      p1.setNextPlayer(p2);
+      p1.initPlayer(p2);
 
       expect(p1.nextPlayer).toBe(p2);
       expect(p2.nextPlayer).toBe(p1);

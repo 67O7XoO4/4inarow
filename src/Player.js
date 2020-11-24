@@ -2,6 +2,10 @@
 import * as HumanStrategy from './HumanStrategy.js';
 import * as ComputerStrategy from './ComputerStrategy.js';
 
+import * as Timer from './Timer.js';
+
+import * as Settings from './Settings.js';
+
 /**
  * Player can be a human or a computer type
  * Its strategy will be updated according its type
@@ -24,10 +28,22 @@ class Player {
      *      name : ''       // name of the player
      *      color : ''      // color of the player
      * }
-     * @param {*} isHuman human or computer
+     * @param {*} settings
      */
-    constructor(config, isHuman){
+    constructor(config, settings){
         
+        this.settings = Settings.init(settings);
+
+        let isHuman = this.settings.listen('isHuman', (newval)=>{
+            this._changeStrategy(newval);
+            this.timer.enable(this.timer.enabled && newval);
+        }, false);
+
+        this.settings.listen('level', (newval)=>{
+            this.strategy.depth = newval;
+        }, 3);
+
+        this.timer = new Timer.Timer(config.timerEnabled && isHuman);
         this.nextPlayer = null;
         this.isCurrentPlayer = false;
         //color
@@ -43,23 +59,17 @@ class Player {
         }
     }
 
-    /**
-     * change the strategy and, thus, the type of player (human/computer)
-     */
-    changeStrategy(){
-        this._changeStrategy( ! this.isHuman())
-    }
 
     _changeStrategy(isHuman){
         if ( isHuman ){
             this.strategy = new HumanStrategy.HumanStrategy(this.board);
         }else{
-            this.strategy = new ComputerStrategy.ComputerStrategy(this);
+            this.strategy = new ComputerStrategy.ComputerStrategy(this, this.settings.level);
         }
     }
 
     isHuman(){
-        return this.strategy.isHuman;
+        return this.settings.isHuman;
     }
 
     /**human need a board to play */
@@ -75,7 +85,11 @@ class Player {
      * @param {*} model 
      */
     atYourTurn(model){
-        return this.strategy.atYourTurn(model);
+        this.timer.resume();
+        return this.strategy.atYourTurn(model)
+        .finally(()=>{
+            this.timer.suspend();
+        });
     } 
 
     /**
@@ -83,14 +97,20 @@ class Player {
      * initialize players in order to both players to know who is the next one
      * @param {*} otherPlayer 
      */
-    setNextPlayer(otherPlayer){
+    initPlayer(otherPlayer){
         this.nextPlayer = otherPlayer;
         otherPlayer.nextPlayer = this;
 
         this.isCurrentPlayer = true;
         otherPlayer.isCurrentPlayer = false;
+
+        this.timer.reset();
+        otherPlayer.timer.reset();
     }
 
+    /**
+     * 
+     */
     switchToNextPlayer(){
         if (! this.isCurrentPlayer) console.error("The player", this.name, "is not the current one. switchToNextPlayer() must not be called")
         this.isCurrentPlayer = false;
@@ -99,9 +119,11 @@ class Player {
         return this.nextPlayer;
     }
 
-    /** interrupt a playe while playing */
+    /** interrupt a player while playing 
+     * @returns Promise when the player is interrupted
+    */
     interrupt(){
-        this.strategy.interrupt();
+       return this.strategy.interrupt();
     }
 };
 

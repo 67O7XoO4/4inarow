@@ -116,7 +116,7 @@
             <div class="md-title md-small-hide">{{player.name}}</div>
             <div v-if="player.isHuman()"  class="md-subhead md-small-hide" >{{$t('playedByHumanTitle')}}</div>
             <div v-if="! player.isHuman()" class="md-subhead md-small-hide">{{$t('playedByComputerTitle')}}</div>
-             
+            <span v-if="player.isHuman() && player.timer.enabled">{{ formattedTimePassed }}</span>
           </md-card-header-text>
           <md-avatar class="md-large">
             <md-icon v-if="player.isHuman()" :title="$t('playedByHumanTitle')" :style="{color : player.color}">person</md-icon>
@@ -134,20 +134,20 @@
                 <div class="md-subhead" v-if="player.isHuman()">{{$t('playedByHumanTitle')}}</div>
                 <div class="md-subhead"  v-if=" ! player.isHuman()">{{$t('playedByComputerTitle')}}</div>
                 <md-subheader>{{$t('changePlayerTypeTitle')}}</md-subheader>
-                <md-switch id="changePlayerType" :value="player.isHuman()" v-on:change="changeStrategy" :title="$t('changePlayerTypeTitle')"></md-switch>
+                <md-switch id="changePlayerType" v-model="player.settings.isHuman" :title="$t('changePlayerTypeTitle')"></md-switch>
               </md-field>
 
               <md-list v-show="! player.isHuman()">
                 <md-subheader>{{$t('depth')}}</md-subheader>
-                <md-list-item v-for="i in [3, 4,5,6,7,8,9]" >
-                  <md-radio v-model="player.strategy.depth" :value="i" :key="i" />
+                <md-list-item v-for="i in [3,4,5,6,7,8]" >
+                  <md-radio v-model="player.settings.level" :value="i" :key="i" />
                   <span class="md-list-item-text"> {{ $t('level_' + i) }}</span>
                   <md-badge class="md-primary" :md-content="i" :title="$t('level_' + i)" />
                 </md-list-item>
               </md-list>
             </md-dialog-content>
             <md-dialog-actions>
-              <md-button class="md-primary" @click="dialogSettings.show = false">Close</md-button>
+              <md-button class="md-primary" @click="dialogSettings.show = false">{{ $t('close')}}</md-button>
             </md-dialog-actions>
           </md-dialog>
 
@@ -190,24 +190,57 @@
     <noscript>'4 in a row' Can't be run without javascript :(</noscript>
 
     <div id="fourInARowApp" class="page-container md-layout-row" v-cloak>
-      <md-app v-bind:class="winnerClass"> <!-- {'win' : winner.key != ''} -->
+      <md-app :class="winnerClass"> <!-- {'win' : winner.key != ''} -->
         <md-app-toolbar class="md-primary">
           <md-button class="md-icon-button" @click="menu.show = true">
             <md-icon>menu</md-icon>
           </md-button>
-          <span class="md-title">{{ $t("title") }} </span><span>{{winner.key}}</span>
+          <span class="md-title">{{ $t("title") }} </span>
         </md-app-toolbar>
 
         <md-app-drawer  md-swipeable :md-active.sync="menu.show">
           <md-toolbar class="md-transparent" md-elevation="0">
             <span class="md-title">{{ $t("title") }}</span>
           </md-toolbar>
-          <md-field>
-            <label for="lang">{{ $t("chooseLang") }}</label>
-            <md-select id="lang" v-model="$i18n.locale">
-              <md-option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">{{ lang }}</option>
-            </md-select>
-        </md-field>
+          <md-list>
+            <md-list-item>
+              <md-field>
+                <label for="lang">{{ $t("chooseLang") }}</label>
+                <md-select id="lang" v-model="settings.lang">
+                  <md-option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">{{ lang }}</option>
+                </md-select>
+              </md-field>
+            </md-list-item>
+            <md-list-item>
+              <md-switch v-model="settings.timerEnabled">{{ $t("useTimer") }}</md-switch>
+            </md-list-item>
+            <md-list-item>
+               <md-field>
+                <label for="nbColumns">{{ $t("nbColumns") }}</label>
+                <md-select id="nbColumns" v-model="settings.board.nbColumns">
+                  <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i">{{ i }}</option>
+                </md-select>
+              </md-field>
+            </md-list-item>
+            <md-list-item>
+              <md-field>
+               <label for="nbRows">{{ $t("nbRows") }}</label>
+               <md-select id="nbRows" v-model="settings.board.nbRows">
+                 <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i">{{ i }}</option>
+               </md-select>
+             </md-field>
+           </md-list-item>
+           <md-list-item>
+            <md-field>
+             <label for="nbCellsToWin">{{ $t("nbCellsToWin") }}</label>
+             <md-select id="nbCellsToWin" v-model="settings.board.nbCellsToWin">
+               <md-option  v-for="i in [3,4,5,6,7]"  :value="i">{{ i }}</option>
+             </md-select>
+           </md-field>
+         </md-list-item>
+            </md-list>
+
+
       </md-app-drawer>
 
       <md-app-content>
@@ -225,7 +258,7 @@
                 <md-button  class="md-dense"
                             v-on:click="undo"
                             :title="$t('undoTitle')"
-                            :disabled="isUndoDisabled">
+                            :disabled="isUndoDisabled()">
                   <md-icon>undo</md-icon> Undo
                 </md-button>
 

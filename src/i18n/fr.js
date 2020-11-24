@@ -4,18 +4,19 @@ export default {
     cancelRestartTitle : "Annule la partie et en démarre une nouvelle",
     changePlayerTypeTitle : 'Cliquer pour changer le type de joueur (ordinateur / Humain)',
     chooseLang :"Choisissez votre langue",
+    close : "Fermer",
     confirm :"Confirmer",
 
     depth :"Niveau de jeu",
 
     drawGame : 'Match nul :(',
 
-    level_4 :"Débutant",
-    level_5 :"Novice",
-    level_6 :"Recrue",
-    level_7 :"Professionel",
-    level_8 :"Commandant",
-    level_9 :"Grand maître",
+    level_3 :"Débutant",
+    level_4 :"Novice",
+    level_5 :"Recrue",
+    level_6 :"Professionel",
+    level_7 :"Commandant",
+    level_8 :"Grand maître",
 
     newGame : 'Nouvelle partie',
     newGameMsg : 'Nouvelle partie. Au {name} de jouer.',
@@ -36,6 +37,7 @@ export default {
 
     undo : "Annuler",
     undoTitle : "Annule le dernier coup",
+    useTimer : "Jouer avec un chronomètre",
 
     YELLOW : 'JAUNE',
 }
