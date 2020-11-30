@@ -124,13 +124,18 @@ var fourInARowApp = new Vue({
         isUndoDisabled() {
             return ! game.isStarted() ;
         },
+
+        isGameSettingsDisabled(){
+            return game.isBeingPlayed() ;
+        },
+
         //resume game after a player has been suspended
-        resume : function(){
+        resume(){
             game.nextMove();
         },
 
         //undo last move (even if won)
-        undo: function () {
+        undo() {
 
             game.undoLastMove();
 
@@ -150,7 +155,7 @@ var fourInARowApp = new Vue({
         //cancel current game and restart a new one after a confirm 
         checkRestart: function () {
 
-            if (game.isStarted()  && ! game.isOver() ){
+            if (game.isBeingPlayed() ){
                 //ask for a confirm
                 this.showRestartConfirm = true
             }else{

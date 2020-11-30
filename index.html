@@ -217,26 +217,35 @@
             <md-list-item>
                <md-field>
                 <label for="nbColumns">{{ $t("nbColumns") }}</label>
-                <md-select id="nbColumns" v-model="settings.board.nbColumns">
-                  <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i">{{ i }}</option>
+                <md-select id="nbColumns" md-dense v-model="settings.board.nbColumns" :disabled="isGameSettingsDisabled()" >
+                  <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i" :disabled=" settings.board.nbCellsToWin > Math.max(settings.board.nbRows, i)">
+                    {{ i }} <span v-if="i==7" class="md-caption"> (standard)</span>
+                  </option>
                 </md-select>
+                <span class="md-helper-text" v-if="isGameSettingsDisabled()">{{ $t("CantChangeSettings")}}</span>
               </md-field>
             </md-list-item>
             <md-list-item>
               <md-field>
                <label for="nbRows">{{ $t("nbRows") }}</label>
-               <md-select id="nbRows" v-model="settings.board.nbRows">
-                 <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i">{{ i }}</option>
+               <md-select id="nbRows" md-dense v-model="settings.board.nbRows" :disabled="isGameSettingsDisabled()">
+                 <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i" :disabled=" settings.board.nbCellsToWin > Math.max(i, settings.board.nbColumns)">
+                   {{ i }}<span v-if="i==6" class="md-caption"> (standard)</span> 
+                </option>
                </md-select>
-             </md-field>
+               <span class="md-helper-text" v-if="isGameSettingsDisabled()">{{ $t("CantChangeSettings")}}</span>
+              </md-field>
            </md-list-item>
            <md-list-item>
             <md-field>
              <label for="nbCellsToWin">{{ $t("nbCellsToWin") }}</label>
-             <md-select id="nbCellsToWin" v-model="settings.board.nbCellsToWin">
-               <md-option  v-for="i in [3,4,5,6,7]"  :value="i">{{ i }}</option>
+             <md-select id="nbCellsToWin" md-dense v-model="settings.board.nbCellsToWin" :disabled="isGameSettingsDisabled()">
+                <md-option  v-for="i in [3,4,5,6,7]"  :value="i"  :disabled=" i > Math.max(settings.board.nbRows, settings.board.nbColumns)">
+                 {{ i }} <span v-if="i==4" class="md-caption"> (standard)</span>
+                </option>
              </md-select>
-           </md-field>
+             <span class="md-helper-text" v-if="isGameSettingsDisabled()">{{ $t("CantChangeSettings")}}</span>
+            </md-field>
          </md-list-item>
             </md-list>
 
@@ -297,7 +306,7 @@
 
       <md-dialog-confirm
           :md-active.sync="showRestartConfirm"
-          :md-title="$t('cancelRestartTitle')"
+          :md-title="$t('cancelRestartTitle')" 
           md-content=""
           :md-confirm-text="$t('confirm')"
           :md-cancel-text="$t('cancel')"

@@ -4,7 +4,8 @@ import * as Settings from './Settings.js';
 //Empty cell
 const EMPTY = { color : "rgb(230, 230, 230)", name : '-'};
 
-const config = {
+// default config if no settings are provided
+const defaultConfig = {
     nbCellsToWin: 4,
     nbRows      : 6,
     nbColumns   : 7,
@@ -63,14 +64,23 @@ class BoardModel {
     columns = null;
     playedCells = [];
 
-    constructor(settings = config){
+    constructor(settings = defaultConfig){
         this.settings = Settings.init(settings);
-        //fill board with columns
-        this.columns = Array(this.settings.nbColumns).fill().map((v,i)=>(new Column(i, this.settings.nbRows)));
+
+        let onSizeChange = ()=>{
+            //fill board with columns
+            this.columns = Array(this.settings.nbColumns).fill().map((v,i)=>(new Column(i, this.settings.nbRows)));
+            if (this._onSizeChange) this._onSizeChange();
+        };
+
+        this.settings.listen('nbColumns', onSizeChange);
+        this.settings.listen('nbRows', onSizeChange);
+
+        onSizeChange();
     }
 
     clone(){
-        let otherBoard = new BoardModel();
+        let otherBoard = new BoardModel(this.settings);
        
         //clone columns
         this.forEachCell((column, cell)=>{
@@ -119,6 +129,11 @@ class BoardModel {
         }
         this.selectedColumn =null;
         this.playedCells = [];
+    }
+
+    
+    onSizeChange(onSizeChange){
+        this._onSizeChange = onSizeChange;
     }
 
     clearAll(){

@@ -1,8 +1,6 @@
 
 - finish PWA
-- add capability to change the column/row numbers
 - change name to XinARow ("4 in a row" copyrighted ? )
-- add timer (if enabled) if player is becoming a human
 - add splash screen at game startup and game finish (at least when timer is enabled)
 - set level as name for the computer
 - compute statistics on the game
@@ -12,8 +10,10 @@
 - animate falling token
 - sounds ?
 - 2 players in remote
-- persist settings (type of player, level...)
 - factorize color
 - fix computer with simple aligned 3 tokens and depth= 3
 - review user board L&F 
 - fix computer playing first column when loosing
+- use webpack or parcel ?
+- sitemap and robots.txt ?
+- run test with github action

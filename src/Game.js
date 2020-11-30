@@ -74,6 +74,10 @@ class Game {
         return this.model != null && this.model.checkIfLastPlayWin();
     }
 
+    isBeingPlayed(){
+        return this.isStarted()  && ! this.isOver();
+    }
+
     /**
      * 
      */
