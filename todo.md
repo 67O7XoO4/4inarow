@@ -16,4 +16,5 @@
 - fix computer playing first column when loosing
 - use webpack or parcel ?
 - sitemap and robots.txt ?
+- add a license
 - run test with github action

@@ -1,3 +1,9 @@
+import Vue from 'vue';
+
+import VueMaterial from 'vue-material';
+import 'vue-material/dist/vue-material.min.css';
+import 'vue-material/dist/theme/default.css';
+
 import * as Board from './Board.js';
 import * as BoardModel from './BoardModel.js';
 import * as Game from './Game.js';
@@ -55,6 +61,7 @@ i18n.locale = settings.listen('lang', (newval)=>{
     i18n.locale = newval;
 }, 'en');
 
+Vue.use(VueMaterial); 
 
 // init GUI
 Vue.component('user-board', {
@@ -93,8 +100,6 @@ Vue.component('user-board', {
     }
     ,
 })
-
-Vue.use(VueMaterial.default);
 
 var fourInARowApp = new Vue({
     i18n,

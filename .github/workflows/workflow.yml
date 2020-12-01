@@ -1,0 +1,40 @@
+
+# mainly inspired by
+# https://github.com/nicolas-van/parcel-github-pages-boilerplate/blob/master/.github/workflows/publishwebsite.yml
+
+name: main-worklfow
+on:
+  push:
+    branches:
+      - feature/add-parcel.js
+  pull_request:
+    branches:
+      - feature/add-parcel.js
+jobs:
+  # Run all unit tests.
+  build-deploy:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      # Check out the pull request's source code.
+      - name: Check out source code
+        uses: actions/checkout@v2
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: install
+        run: npm ci
+      - name: test
+        run: npm run test
+      - name: build
+        run: npm run build
+      - name: deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
