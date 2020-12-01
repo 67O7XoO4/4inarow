@@ -3,6 +3,7 @@ export default {
     cancel :"Cancel",
     cancelRestartTitle : "Cancel current game and start a new one",
     changePlayerTypeTitle : 'Change human/computer player',
+    CantChangeSettings : "Can't change this setting while a game is being played",
     chooseLang :"Choose you language",
     close : "Close",
     confirm :"Confirm",
@@ -18,6 +19,9 @@ export default {
     level_7 :"Major",
     level_8 :"Grand master",
 
+    nbCellsToWin : 'Numbers of aligned tokens to win',
+    nbColumns : 'Numbers of columns',
+    nbRows : 'Numbers of rows',
     newGame : 'New game',
     newGameMsg :  'New game started. {name} to play',
 

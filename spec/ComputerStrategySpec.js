@@ -1,6 +1,6 @@
-import * as BoardModel from '../src/BoardModel.js';
-import * as ComputerStrategy from '../src/ComputerStrategy.js';
-import * as Player from '../src/Player.js';
+import * as BoardModel from '../js/BoardModel.js';
+import * as ComputerStrategy from '../js/ComputerStrategy.js';
+import * as Player from '../js/Player.js';
 
 const sevenTimes = [0,1,2,3,4,5,6];
 const PlayerScore = ComputerStrategy.SAME_PLAYER_CELL_SCORE;

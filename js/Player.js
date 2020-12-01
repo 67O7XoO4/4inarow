@@ -36,7 +36,7 @@ class Player {
 
         let isHuman = this.settings.listen('isHuman', (newval)=>{
             this._changeStrategy(newval);
-            this.timer.enable(this.timer.enabled && newval);
+            this.timer.enable(config.timerEnabled && newval);
         }, false);
 
         this.settings.listen('level', (newval)=>{

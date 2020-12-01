@@ -1,4 +1,4 @@
-import * as Settings from '../src/Settings.js';
+import * as Settings from '../js/Settings.js';
 
 describe("Settings", () => {
 

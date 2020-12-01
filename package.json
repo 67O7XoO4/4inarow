@@ -4,7 +4,8 @@
   "description": "4 in a row game",
   "main": "4inarow.js",
   "scripts": {
-    "dev": "browser-sync start -s -w",
+    "dev": "parcel index.html",
+    "build": "parcel build index.html --public-url './' ",
     "test": "node_modules/.bin/jasmine"
   },
   "repository": {
@@ -17,12 +18,25 @@
     "url": "https://github.com/67O7XoO4/4inarow/issues"
   },
   "homepage": "https://github.com/67O7XoO4/4inarow#readme",
+
+  "//" :      ["alias 'vue' : useful to use vue-compiler and not just vue runtime",
+                "see //https://scotch.io/tutorials/using-parcel-in-a-vuejs-app"
+  ],
+  "alias": {
+    "vue": "./node_modules/vue/dist/vue.common.js"
+  },
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@babel/register": "^7.12.1",
-    "jasmine": "^3.6.2"
+    "jasmine": "^3.6.2",
+    "parcel-bundler": "^1.12.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "material-icons": "^0.3.1",
+    "vue": "^2.6.12",
+    "vue-i18n": "^8.22.2",
+    "vue-material": "^1.0.0-beta-15"
+  }
 }

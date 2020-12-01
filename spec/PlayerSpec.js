@@ -1,4 +1,4 @@
-import * as Player from '../src/Player.js';
+import * as Player from '../js/Player.js';
 
 describe("Player", ()=> {
 

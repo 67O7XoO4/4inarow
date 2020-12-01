@@ -1,3 +1,9 @@
+import Vue from 'vue';
+
+import VueMaterial from 'vue-material';
+import 'vue-material/dist/vue-material.min.css';
+import 'vue-material/dist/theme/default.css';
+
 import * as Board from './Board.js';
 import * as BoardModel from './BoardModel.js';
 import * as Game from './Game.js';
@@ -55,6 +61,7 @@ i18n.locale = settings.listen('lang', (newval)=>{
     i18n.locale = newval;
 }, 'en');
 
+Vue.use(VueMaterial); 
 
 // init GUI
 Vue.component('user-board', {
@@ -94,8 +101,6 @@ Vue.component('user-board', {
     ,
 })
 
-Vue.use(VueMaterial.default);
-
 var fourInARowApp = new Vue({
     i18n,
     el: '#fourInARowApp',
@@ -124,13 +129,18 @@ var fourInARowApp = new Vue({
         isUndoDisabled() {
             return ! game.isStarted() ;
         },
+
+        isGameSettingsDisabled(){
+            return game.isBeingPlayed() ;
+        },
+
         //resume game after a player has been suspended
-        resume : function(){
+        resume(){
             game.nextMove();
         },
 
         //undo last move (even if won)
-        undo: function () {
+        undo() {
 
             game.undoLastMove();
 
@@ -150,7 +160,7 @@ var fourInARowApp = new Vue({
         //cancel current game and restart a new one after a confirm 
         checkRestart: function () {
 
-            if (game.isStarted()  && ! game.isOver() ){
+            if (game.isBeingPlayed() ){
                 //ask for a confirm
                 this.showRestartConfirm = true
             }else{

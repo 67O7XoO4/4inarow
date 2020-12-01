@@ -1,5 +1,5 @@
-import * as BoardModel from '../src/BoardModel.js';
-import * as Player from '../src/Player.js';
+import * as BoardModel from '../js/BoardModel.js';
+import * as Player from '../js/Player.js';
 
 let p1 = new Player.Player("p1");
 let p2 = new Player.Player("p2");

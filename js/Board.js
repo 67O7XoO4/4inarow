@@ -53,12 +53,11 @@ class Board {
     constructor(boardModel, canvasId){
         this.model = boardModel; 
 
-        this._initBoard(canvasId);
-    }
-
-    //private 
-    //init board and its related canvas
-    _initBoard(canvasId){
+        this.model.onSizeChange( ()=>{
+            this.resize();
+        });
+ 
+        //init board and its related canvas
             
         // canvas config (Size,...). These get updated after browser loading.
         this.canvas = document.getElementById( canvasId );
@@ -66,35 +65,33 @@ class Board {
     
         let board = this;
 
-        let resize = ()=>{
-            //map the canvas size to the displayed size
-            let size = Math.min(board.canvas.parentElement.clientWidth,
-                                board.canvas.parentElement.clientHeight)
-            
-            board.canvas.width = size;
-            board.canvas.height = size;
+        this.resize = ()=>{
+            // Clear the canvas and redraw all the board 
+            board.ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
 
-            board._setSize(size);
+            //map the canvas size to the displayed size
+            board.canvas.width = board.canvas.parentElement.clientWidth;
+            board.canvas.height = board.canvas.parentElement.clientHeight;
+
+            //size 500
+            config.columnWidth = Math.round(board.canvas.width  / (board.model.getConfig().nbColumns+1 ) ); //65
+            config.rowHeight   = Math.round(board.canvas.height / (board.model.getConfig().nbRows+1 ) ); //65
+
+            config.cellRadius = (Math.min( config.columnWidth, config.rowHeight) / 2) * (8/10) ;
+
+            config.vMargin     = config.cellRadius;
+            config.hMargin     = config.cellRadius ;
 
             //set Y=0 at the bottom of the board
             board.ctx.translate(0, board.getHeight() );
             board.ctx.scale (1, -1);
         }
         
-        resize();
+        this.resize();
 
-        window.addEventListener("resize", resize, false);
+        window.addEventListener("resize", this.resize, false);
     }
     
-    _setSize(size){
-        //size 500
-        config.columnWidth = Math.round(size / 7.5); //65
-        config.rowHeight   = Math.round(size / 7.5); //65
-        config.cellRadius  = Math.round(size / 20) ; //25;
-        config.vMargin     = config.cellRadius;
-        config.hMargin     = Math.round(config.cellRadius * 2 / 3);
-    }
-
     forEachCell(callback){
         this.model.columns.forEach((column)=>{
             column.cells.forEach((cell)=>callback(column, cell))

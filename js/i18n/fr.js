@@ -3,6 +3,7 @@ export default {
     cancel :"Annule",
     cancelRestartTitle : "Annule la partie et en démarre une nouvelle",
     changePlayerTypeTitle : 'Cliquer pour changer le type de joueur (ordinateur / Humain)',
+    CantChangeSettings : "Pas possible de modifier ce paramétrage durant une partie",
     chooseLang :"Choisissez votre langue",
     close : "Fermer",
     confirm :"Confirmer",
@@ -18,6 +19,10 @@ export default {
     level_7 :"Commandant",
     level_8 :"Grand maître",
 
+    
+    nbCellsToWin : 'Nombre de jetons alignés pour gagner',
+    nbColumns : 'Nombres de colonnes',
+    nbRows : 'Nombres de lignes',
     newGame : 'Nouvelle partie',
     newGameMsg : 'Nouvelle partie. Au {name} de jouer.',
 
