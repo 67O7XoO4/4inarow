@@ -6,10 +6,10 @@ name: main-worklfow
 on:
   push:
     branches:
-      - feature/add-parcel.js
+      - main
   pull_request:
     branches:
-      - feature/add-parcel.js
+      - main
 jobs:
   # Run all unit tests.
   build-deploy:
