@@ -8,7 +8,8 @@ const config = {
     hMargin      : 22,
     vMargin      : 22,
     edgeCurve   : 15,
-    boardColor  : "rgb(30, 130, 220)" //#1E82DC
+    boardColor  : "rgb(30, 130, 220)", //#1E82DC
+    fallingSpeed : 30
 };
 
 
@@ -53,10 +54,14 @@ class Board {
     constructor(boardModel, canvasId){
         this.model = boardModel; 
 
-        this.model.onSizeChange( ()=>{
-            this.resize();
+        this.model.onPlay((column, player)=>{
+            this.fallingToken= {
+                column : column,
+                player : player,
+                y : this.getYUp(), 
+            }
         });
- 
+
         //init board and its related canvas
             
         // canvas config (Size,...). These get updated after browser loading.
@@ -90,6 +95,10 @@ class Board {
         this.resize();
 
         window.addEventListener("resize", this.resize, false);
+
+        this.model.onSizeChange( ()=>{
+            this.resize();
+        });
     }
     
     forEachCell(callback){
@@ -113,8 +122,8 @@ class Board {
         // Clear the canvas and redraw all the board 
         ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
 
+        //draw background board
         ctx.fillStyle = config.boardColor;
-            
         rectArrondi(ctx,
             this.getXLeft(), 
             this.getYBottom(), 
@@ -123,16 +132,25 @@ class Board {
             config.edgeCurve
         );
 
+        //display cells
         this.model.forEachCell((column, cell)=>{
             
-                ctx.shadowColor = "black";
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
-                ctx.fillStyle = cell.value.color;
-
+                let old  =  ctx.globalCompositeOperation ;
+                if (cell.isEmpty() 
+                    || (this.model.getLastPlayedCell() === cell && this.fallingToken)
+                    ){
+                    // empty cell
+                    ctx.globalCompositeOperation = 'destination-out';
+                }else{
+                    //filled cell
+                    ctx.shadowColor = "grey";
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
+                    ctx.fillStyle = cell.value.color;    
+                }
+                //draw cell
                 ctx.beginPath();
-
                 ctx.arc(
                     getX(column),
                     getY(cell),
@@ -142,10 +160,10 @@ class Board {
                     true);    
         
                 ctx.fill();
-                // ctx.fillText(column.num + "/" + cell.num, column.x, cell.y); 
+                ctx.globalCompositeOperation = old;
 
-                if (cell.isWinning){
-
+                if (cell.isWinning && ! this.fallingToken){
+                    //draw special L&F for winning cells
                     ctx.lineWidth = 3;
                     ctx.beginPath();
         
@@ -159,26 +177,58 @@ class Board {
             
                     ctx.stroke();
                 }
-
-                if (this.model.getLastPlayedCell() === cell){
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.strokeStyle = cell.value.color;
-                    ctx.arc(
-                        getX(column),
-                        getY(cell),
-                        config.cellRadius + 1,
-                        0, 
-                        Math.PI * 2, 
-                        true);    
             
-                    ctx.stroke();
+                if (this.model.getLastPlayedCell() === cell ){
+                    if (! this.fallingToken){
+                        //draw special L&F for last played cell
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.strokeStyle = cell.value.color;
+                        ctx.arc(
+                            getX(column),
+                            getY(cell),
+                            config.cellRadius + 1,
+                            0, 
+                            Math.PI * 2, 
+                            true);    
+                
+                        ctx.stroke();
+                    }else{
+
+                    }
                 }
                 ctx.shadowColor='rgba(0,0,0,0)';
         
         });
 
-        this._displaySelectedColumn(currentPlayer);
+        //display falling token
+        if (this.fallingToken){
+            let old  =  ctx.globalCompositeOperation ;
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = this.fallingToken.player.color; 
+            ctx.beginPath();
+
+            ctx.arc(
+                getX(this.fallingToken.column),
+                this.fallingToken.y,
+                config.cellRadius,
+                0, 
+                Math.PI * 2, 
+                true);    
+    
+            ctx.fill();
+            ctx.globalCompositeOperation = old;
+            
+            //make de falling token falls
+            this.fallingToken.y = this.fallingToken.y - config.fallingSpeed;
+
+            //stop falling
+            if (getY(this.model.getLastPlayedCell())>this.fallingToken.y){
+                this.fallingToken = null;
+            } 
+        }
+        
+        if (! this.fallingToken) this._displaySelectedColumn(currentPlayer);
     }
 
 

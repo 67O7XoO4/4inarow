@@ -7,14 +7,13 @@
 - store statistics and provide insights
 - add hints 
 - add force computer to play at a given column
-- animate falling token
 - sounds ?
 - 2 players in remote
 - factorize color
 - fix computer with simple aligned 3 tokens and depth= 3
 - review user board L&F 
 - fix computer playing first column when loosing
-- use webpack or parcel ?
+
 - sitemap and robots.txt ?
 - add a license
 - run test with github action

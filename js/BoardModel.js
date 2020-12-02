@@ -63,6 +63,7 @@ class BoardModel {
     selectedColumn = null;
     columns = null;
     playedCells = [];
+    listeners = [];
 
     constructor(settings = defaultConfig){
         this.settings = Settings.init(settings);
@@ -70,7 +71,7 @@ class BoardModel {
         let onSizeChange = ()=>{
             //fill board with columns
             this.columns = Array(this.settings.nbColumns).fill().map((v,i)=>(new Column(i, this.settings.nbRows)));
-            if (this._onSizeChange) this._onSizeChange();
+            if (this.listeners['onSizeChange']) this.listeners['onSizeChange']();
         };
 
         this.settings.listen('nbColumns', onSizeChange);
@@ -133,7 +134,11 @@ class BoardModel {
 
     
     onSizeChange(onSizeChange){
-        this._onSizeChange = onSizeChange;
+        this.listeners['onSizeChange'] = onSizeChange;
+    }
+
+    onPlay(onPlay){
+        this.listeners['onPlay'] = onPlay;
     }
 
     clearAll(){
@@ -216,6 +221,8 @@ class BoardModel {
             throw "Can't play on complete column : "+column.num;
         }
         this.playedCells.push(foundCell);
+
+        if (this.listeners['onPlay']) this.listeners['onPlay'](column, player);
     }
 
     isComplete(){
