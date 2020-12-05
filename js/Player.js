@@ -1,5 +1,6 @@
 
-import * as HumanStrategy from './HumanStrategy.js';
+import * as HumanGuiStrategy from './HumanGuiStrategy.js';
+import * as HumanCliStrategy from './HumanCliStrategy.js';
 import * as ComputerStrategy from './ComputerStrategy.js';
 
 import * as Timer from './Timer.js';
@@ -13,7 +14,7 @@ import * as Settings from './Settings.js';
  * a Strategy must looks like:
  *  {
  *      isHuman
- *      Promise atYourTurn(model) //the promise is resolved when the player played
+ *      Promise selectColumn(model) //the promise is resolved when the player choose a column. The promise return the choosen column number
  *      interrupt()
  *  }
  * 
@@ -28,7 +29,7 @@ class Player {
      *      name : ''       // name of the player
      *      color : ''      // color of the player
      * }
-     * @param {*} settings
+     * @param {*} settings : isHuman, level
      */
     constructor(config, settings){
         
@@ -62,7 +63,11 @@ class Player {
 
     _changeStrategy(isHuman){
         if ( isHuman ){
-            this.strategy = new HumanStrategy.HumanStrategy(this.board);
+            if (this.board){
+                this.strategy = new HumanGuiStrategy.HumanGuiStrategy(this.board);
+            }else{
+                this.strategy = new HumanCliStrategy.HumanCliStrategy();
+            }
         }else{
             this.strategy = new ComputerStrategy.ComputerStrategy(this, this.settings.level);
         }
@@ -83,10 +88,11 @@ class Player {
      * Call by the app when the player is the current player and should play
      * 
      * @param {*} model 
+     * @returns a Promise with the choosen column number 
      */
-    atYourTurn(model){
+    selectColumn(model){
         this.timer.resume();
-        return this.strategy.atYourTurn(model)
+        return this.strategy.selectColumn(model)
         .finally(()=>{
             this.timer.suspend();
         });

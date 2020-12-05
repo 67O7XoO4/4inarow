@@ -23,12 +23,10 @@ class ComputerStrategy  {
         this._currentPromise = null;
     }
 
-    atYourTurn(model){
+    selectColumn(model){
         this._currentPromise = new Promise((resolve) => {
             setTimeout(()=>{
-                model.setSelectedColumn(this.pickColumn(model,  this.depth));
-
-                return resolve();
+                return resolve(this.pickColumn(model,  this.depth));
             }, 10);
         });
 

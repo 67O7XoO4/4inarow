@@ -2,7 +2,7 @@
 import * as Settings from './Settings.js';
 
 //Empty cell
-const EMPTY = { color : "rgb(230, 230, 230)", name : '-'};
+const EMPTY = { color : "", name : '-'};
 
 // default config if no settings are provided
 const defaultConfig = {
@@ -60,7 +60,6 @@ class Column {
 }
 
 class BoardModel {
-    selectedColumn = null;
     columns = null;
     playedCells = [];
     listeners = [];
@@ -128,7 +127,6 @@ class BoardModel {
             })
             rowNum++;
         }
-        this.selectedColumn =null;
         this.playedCells = [];
     }
 
@@ -193,19 +191,10 @@ class BoardModel {
 
     /**
      * 
-     * @param {*} num 
-     */
-    setSelectedColumn(num){
-        this.selectedColumn = this.columns[num];
-        return this.selectedColumn;
-    }
-
-    /**
-     * 
      * @param {*} player 
      */
-    playAtSelectedColumn(player){
-        this.play(this.selectedColumn, player);
+    playAtSelectedColumn(colnum, player){
+        this.play(this.columns[colnum], player);
     }
     
     /**

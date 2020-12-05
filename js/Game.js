@@ -1,3 +1,4 @@
+import { Board } from './Board.js';
 import * as Player from './Player.js';
 
 import * as Settings from './Settings.js';
@@ -7,6 +8,7 @@ const YELLOW_CONFIG = { color : "rgb(255, 255, 0)" , key : "YELLOW"  };
 
 const EVENTS = {
     GAME_STARTED        : 'GAME_STARTED',
+    JUST_PLAYED         : 'JUST_PLAYED',
     PLAYER_WIN          : 'PLAYER_WIN',
     DRAW_GAME           : 'DRAW_GAME',
     PLAYER_SUSPENDED    : 'PLAYER_SUSPENDED'
@@ -24,8 +26,13 @@ class Game {
             this.gameListener = gameListener;
         } 
         //init players
-        RED_CONFIG.name = i18n.t(RED_CONFIG.key);
-        YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.key);
+        if (i18n){
+            RED_CONFIG.name = i18n.t(RED_CONFIG.key);
+            YELLOW_CONFIG.name = i18n.t(YELLOW_CONFIG.key);    
+        }else{
+            RED_CONFIG.name = RED_CONFIG.key;
+            YELLOW_CONFIG.name = YELLOW_CONFIG.key;    
+        }
 
         settings = Settings.init(settings);
 
@@ -83,24 +90,32 @@ class Game {
      */
     start(board){
         
-        this.currentPlayer.interrupt()
+        return this.currentPlayer.interrupt()
         .finally(()=>{
             
             this.players[0].timer.reset();
             this.players[1].timer.reset();
             
             if (board){
-                //human need a board to play
-                this.players[0].setBoard(board);
-                this.players[1].setBoard(board);
+                //if no board, then we must already have the model
+                //For instance, if the player start a new game after a first one
+                if (board instanceof Board){
+                    //human need a board to play
+                    this.players[0].setBoard(board);
+                    this.players[1].setBoard(board);
                 
-                this.model = board.model;
+                    this.model = board.model;
+                }else{
+                    //we assume it is a boardModel 
+                    //(useful for Game without GUI, in CLI mode)
+                    this.model = board;        
+                }
             }
             this.model.clearAll();
             //restart the game
             this.nextMove();
 
-            this.gameListener.call(null, [EVENTS.GAME_STARTED]);
+            this.gameListener.call(null, EVENTS.GAME_STARTED);
         });
     }
 
@@ -112,9 +127,9 @@ class Game {
      * Chek if he wins
      * or else ask the next user to play
      */
-    _play(){
+    _play(colnum){
         
-        this.model.playAtSelectedColumn(this.currentPlayer);
+        this.model.playAtSelectedColumn(colnum, this.currentPlayer);
 
         if ( this.model.checkIfLastPlayWin()){
 
@@ -139,9 +154,13 @@ class Game {
 
         if ( ! this.currentPlayer.suspended){
                 
-            this.currentPlayer.atYourTurn(this.model)
+            this.currentPlayer.selectColumn(this.model)
             //when ready, play the next move
-            .then(()=> this._play(), ()=>{console.log("interrupted", arguments);} )
+            .then((columnNumber)=> {
+                this._play(columnNumber);
+                this.gameListener.call(null, EVENTS.JUST_PLAYED, this.currentPlayer.nextPlayer);
+            },
+             ()=>{console.log("interrupted", arguments);} )
 
         }else{
             this.gameListener.call(null, [EVENTS.PLAYER_SUSPENDED]);

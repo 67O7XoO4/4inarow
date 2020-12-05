@@ -54,7 +54,7 @@ let settings = new Settings.Settings({
 });
 
 let game = new Game.Game(event=>{
-    actions[event].call();
+    if (actions[event]) actions[event].call();
 }, settings, i18n);
 
 i18n.locale = settings.listen('lang', (newval)=>{

@@ -3,9 +3,9 @@
 let mousePos = {x: 0, y:0, out: true}; //out = mouse over or not
 
 /**
- * 
+ * Human strategy when a GUI is available 
  */
-class HumanStrategy  {
+class HumanGuiStrategy  {
 
     constructor(board){
         this.isHuman = true;
@@ -14,13 +14,14 @@ class HumanStrategy  {
         this._currentPromise = null;
     }
 
-    atYourTurn(model){
+    selectColumn(model){
     
         this._currentPromise = new Promise((resolve, reject)=>{
 
             //reset the selected column to the current mouse position
-            this.board.setSelectedColumn(mousePos.x);
-        
+            let selectedColumn = this.board.getColumn(mousePos.x);
+            this.board.setSelectedColnum(selectedColumn);
+
             //listen to mouse event, find the selected column and play
 
             let mousemove = (evt)=>{
@@ -31,14 +32,15 @@ class HumanStrategy  {
                 mousePos.x = evt.clientX - rect.left;
                 mousePos.y = evt.clientY - rect.top;
         
-                this.board.setSelectedColumn(mousePos.x);
+                selectedColumn = this.board.getColumn(mousePos.x);
+                this.board.setSelectedColnum(selectedColumn);
                 //console.debug(mousePos);
             };
             this.board.canvas.addEventListener('mousemove', mousemove, false);
             let mouseout =  ()=> (mousePos.out = true);
             this.board.canvas.addEventListener('mouseout', mouseout, false);
             let click = ()=> {
-                if (model.selectedColumn){
+                if (selectedColumn != null){
 
                     //current player has played, let's clean the listener and resolve the promise 
                     removeEventListeners(false);
@@ -56,7 +58,7 @@ class HumanStrategy  {
                 if(isInterrupted){
                     reject();
                 }else{
-                    resolve();
+                    resolve(selectedColumn);
                 }
                 this._currentPromise = null;
             };
@@ -76,4 +78,4 @@ class HumanStrategy  {
     }
 };
 
-export {HumanStrategy};
+export {HumanGuiStrategy as HumanGuiStrategy};
