@@ -53,7 +53,7 @@ export default {
     textCopied : "URL has been copied, share it with the remote player",
     title: '4 in a row',
     tryingToConnectToRemote : 'Trying to connect to remote game',
-    
+
     undo : "Undo",
     undoTitle : "Undo last move",
     useTimer : "Play with a timer",

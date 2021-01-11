@@ -84,7 +84,7 @@ Vue.component('user-board', {
     data: () => ({
         dialogSettings : {show : false}
     }),
-    props: ['player'],
+    props: ['player', 'display-settings'],
     
     computed :{
         formattedTimePassed() {
@@ -222,15 +222,13 @@ var fourInARowApp = new Vue({
 
         onConfirmRemote : function(){
             this.dialogRemote.show = true;
+            this.stepper.active = 'first';
         },
 
         inviteRemote : function(){
             
-            // this.stepper[id] = true;
             this.stepper.active = 'second'
     
-            //TODO check and reset current connection if any
-
             //create a url and QR code to be shared
             //with the remote player
             this.remoteManager.invite()

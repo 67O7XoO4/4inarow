@@ -83,7 +83,8 @@
           <!-- settings -->
           <md-button @click="dialogSettings.show = true"
             :title="$t('playerSettingsTitle')"
-            class="md-icon-button">
+            class="md-icon-button"
+            v-if="displaySettings">
             <md-icon>settings</md-icon>
           </md-button>
 
@@ -152,7 +153,7 @@
       </md-dialog>
 
      
-      <md-app :class="winnerClass"> <!-- {'win' : winner.key != ''} -->
+      <md-app id="fourinarow" :class="winnerClass"> <!-- {'win' : winner.key != ''} -->
         <md-app-toolbar class="md-primary">
           <md-button class="md-icon-button" @click="menu.show = true">
             <md-icon>menu</md-icon>
@@ -268,11 +269,11 @@
             </div>
 
             <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
-              <user-board  :player='players[0]'  v-on:resume='resume' ></user-board>
+              <user-board  :player='players[0]'  v-on:resume='resume' :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
 
             <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
-              <user-board :player='players[1]' v-on:resume='resume' ></user-board>
+              <user-board :player='players[1]' v-on:resume='resume' :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
             
             <div class=" md-layout-item md-medium-hide md-large-size-33 md-xlarge-size-50">
