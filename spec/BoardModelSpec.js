@@ -15,10 +15,10 @@ let p9 = new Player.Player("p9");
 
 describe("BoardModel", ()=> {
 
-  let boardModel = new BoardModel.BoardModel();
-    
-  it("should be able to be instanciated ", ()=>{
-    expect(boardModel).toBeInstanceOf(BoardModel.BoardModel);
+  let boardModel = null;
+  
+  beforeEach(() => {
+    boardModel = new BoardModel.BoardModel();
   });
 
   let boardAsArray = [
@@ -45,6 +45,11 @@ describe("BoardModel", ()=> {
     expect(boardModel.columns[6].cells[0].isEmpty()).toBeTrue();
   }
 
+  
+  it("should be able to be instanciated ", ()=>{
+    expect(boardModel).toBeInstanceOf(BoardModel.BoardModel);
+  });
+
   it("should be able to be cleared and initialized ", ()=>{
     boardModel.init([[]]);
     boardModel.play(boardModel.columns[0], p1);
@@ -53,7 +58,6 @@ describe("BoardModel", ()=> {
     checkInit(boardModel);
   });
 
-  
   it("should be able to be cloned", ()=>{
     boardModel.init(boardAsArray);
 
@@ -108,6 +112,32 @@ describe("BoardModel", ()=> {
     expect(boardModel.columns[1].isEmpty()).toBeTrue();
   });
 
+  it("should be able to notify size change", ()=>{
+    
+    let sizeChanged = false;
+    boardModel.onSizeChange(()=>{
+      sizeChanged = true;
+    })
+    expect(sizeChanged).toBeFalse();
+
+    boardModel.settings.nbColumns = 5;
+
+    expect(sizeChanged).toBeTrue();
+
+    sizeChanged = false;
+    expect(sizeChanged).toBeFalse();
+
+    boardModel.settings.nbRows = 5;
+
+    expect(sizeChanged).toBeTrue();
+
+    sizeChanged = false;
+    expect(sizeChanged).toBeFalse();
+
+    boardModel.settings.otherSetting = 5;
+
+    expect(sizeChanged).toBeFalse();
+  });
   
   it("should be able to iterate trough the board", ()=>{
     boardModel.init( [
@@ -126,18 +156,28 @@ describe("BoardModel", ()=> {
     boardModel.init( [
       [0 , p1, p2],
     ]);
-    boardModel.setSelectedColumn(3);
+
+    let played = null;
+    boardModel.onPlay((column, player)=>{
+      played = {column : column, player : player};
+    });
 
     expect(boardModel.columns[3].isEmpty()).toBeTrue();
 
-    boardModel.playAtSelectedColumn(p3);
+    boardModel.playAtSelectedColumn(3, p3);
 
     expect(boardModel.columns[3].isEmpty()).toBeFalse();
     expect(boardModel.columns[3].getLastPlayedCell().value).toBe(p3);
 
+    expect(played.column).toBe(boardModel.columns[3]);
+    expect(played.player).toBe(p3);
+    played = null;
+
     boardModel.play(boardModel.columns[3], p4);
 
     expect(boardModel.columns[3].getLastPlayedCell().value).toBe(p4);
+    expect(played.column).toBe(boardModel.columns[3]);
+    expect(played.player).toBe(p4);
   });
 
   it("should not be able to play on a complete column", ()=>{

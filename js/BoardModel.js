@@ -1,8 +1,9 @@
 
-import * as Settings from './Settings.js';
+import * as Settings from './util/Settings.js';
+import * as Observable from './util/Observable.js';
 
 //Empty cell
-const EMPTY = { color : "rgb(230, 230, 230)", name : '-'};
+const EMPTY = { color : "", name : '-'};
 
 // default config if no settings are provided
 const defaultConfig = {
@@ -60,18 +61,20 @@ class Column {
 }
 
 class BoardModel {
-    selectedColumn = null;
     columns = null;
     playedCells = [];
-    listeners = [];
+    $observable = new Observable.Observable();
 
     constructor(settings = defaultConfig){
         this.settings = Settings.init(settings);
 
         let onSizeChange = ()=>{
             //fill board with columns
-            this.columns = Array(this.settings.nbColumns).fill().map((v,i)=>(new Column(i, this.settings.nbRows)));
-            if (this.listeners['onSizeChange']) this.listeners['onSizeChange']();
+            this.columns = Array(this.settings.nbColumns)
+                            .fill()
+                            .map((v,i)=>(new Column(i, this.settings.nbRows)));
+            
+            this.$observable.emit('onSizeChange');
         };
 
         this.settings.listen('nbColumns', onSizeChange);
@@ -128,17 +131,16 @@ class BoardModel {
             })
             rowNum++;
         }
-        this.selectedColumn =null;
         this.playedCells = [];
     }
 
     
     onSizeChange(onSizeChange){
-        this.listeners['onSizeChange'] = onSizeChange;
+        return this.$observable.addListener('onSizeChange', onSizeChange);
     }
 
     onPlay(onPlay){
-        this.listeners['onPlay'] = onPlay;
+        return this.$observable.addListener('onPlay', onPlay);
     }
 
     clearAll(){
@@ -193,19 +195,10 @@ class BoardModel {
 
     /**
      * 
-     * @param {*} num 
-     */
-    setSelectedColumn(num){
-        this.selectedColumn = this.columns[num];
-        return this.selectedColumn;
-    }
-
-    /**
-     * 
      * @param {*} player 
      */
-    playAtSelectedColumn(player){
-        this.play(this.selectedColumn, player);
+    playAtSelectedColumn(colnum, player){
+        this.play(this.columns[colnum], player);
     }
     
     /**
@@ -222,7 +215,7 @@ class BoardModel {
         }
         this.playedCells.push(foundCell);
 
-        if (this.listeners['onPlay']) this.listeners['onPlay'](column, player);
+        this.$observable.emit('onPlay', column, player);
     }
 
     isComplete(){

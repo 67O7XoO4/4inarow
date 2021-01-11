@@ -14,13 +14,11 @@ class Timer {
     }
 
     reset(){
-        //console.log("reset");
         clearInterval(this._intervalId); 
         this.timePassed = 0;
     }
 
     resume(){
-        //console.log("resume");
         this._timePassedBeforelastResume = this.timePassed;
         this._lastResume = Date.now();
         this._intervalId = setInterval(() => (this.timePassed += 1000), 1000);
@@ -28,7 +26,6 @@ class Timer {
 
     suspend(){
         
-        //console.log("suspend");
         clearInterval(this._intervalId); 
 
         // compute a more accurate timepassed

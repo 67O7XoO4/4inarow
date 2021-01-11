@@ -19,13 +19,36 @@
     margin-right: auto;
 }
 
+.msg-box{
+    min-height: 0;
+} 
+
+.msg-box .md-field .md-input{
+    padding-right:36px
+}
+
+.msg-box .md-field {
+    margin:0 
+}
+
+.msg-sent{
+    text-align: right;
+    color: gray;
+    font-size: 12px;
+}
+
+.msg-received{
+    text-align: left;
+    color: black;
+    font-size: 12px;
+}
+
 .md-card.user-card {
     max-width: 250px; 
     background: #D7D7D7;
 }
 .md-app-content .md-card.user-card {
-    margin-left: 8px;
-    margin-right: 8px; 
+    margin: 4px;
 }
 .md-card.user-card.current-player {
     border: solid 1px;  
@@ -38,8 +61,10 @@
     max-width: 550px; 
     background-color: rgb(230, 230, 230); 
 }
+
 .md-content.md-theme-default{
     background: transparent;
+    padding: 0 4px 0;
 }
 
 .md-app.md-theme-default {
@@ -70,6 +95,7 @@
         background-position: 100% 100%;
     }
 }
+
 
 @import 'material-icons/iconfont/material-icons.css';
 @import 'vue-material/dist/vue-material.css';

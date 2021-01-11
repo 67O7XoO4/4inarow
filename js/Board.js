@@ -107,10 +107,11 @@ class Board {
         });
     }
 
-    setSelectedColumn(x){
+    /** get column number given the X position  */
+    getColumn(x){
         let col = this.model.columns.find(column => getXinf(column) < x && x <= getXSup(column) );
-        if (col) this.model.setSelectedColumn(col.num);
-        return this.selectedColumn;
+        if (col) return col.num;
+        return null;
     }
 
 
@@ -233,17 +234,26 @@ class Board {
 
 
     /**
+     * set the currently selected column in the board.
+     * (HumanGuiStrategy uses this to set column on mouse over)
+     * @param {*} num 
+     */
+    setSelectedColnum(num){
+        this.selectedColnum = num; 
+    } 
+
+    /**
      * private
      */
     _displaySelectedColumn(currentPlayer){
         let ctx = this.ctx;
         //show column selection 
-        if (this.model.selectedColumn){
+        if (this.selectedColnum != null){
 
             ctx.fillStyle = currentPlayer.color;
             ctx.beginPath();
             ctx.arc(
-                getX(this.model.selectedColumn), 
+                getX(this.model.columns[this.selectedColnum]),
                 this.getYUp(), 
                 config.cellRadius,
                 0 , 
