@@ -1,3 +1,7 @@
+require('jsdom-global')()
+
+
+//https://github.com/jsdom/jsdom/issues/1137
 
 let store = {};
 

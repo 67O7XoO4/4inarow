@@ -1,11 +1,11 @@
 
 import * as HumanGuiStrategy from './HumanGuiStrategy.js';
 import * as HumanCliStrategy from './HumanCliStrategy.js';
-import * as ComputerStrategy from './ComputerStrategy.js';
+import * as ComputerStrategy from './ComputerStrategy.js'; 
+import * as HumanRemoteStrategy from './HumanRemoteStrategy.js';
 
-import * as Timer from './Timer.js';
-
-import * as Settings from './Settings.js';
+import * as Timer from './util/Timer.js';
+import * as Settings from './util/Settings.js';
 
 /**
  * Player can be a human or a computer type
@@ -36,7 +36,7 @@ class Player {
         this.settings = Settings.init(settings);
 
         let isHuman = this.settings.listen('isHuman', (newval)=>{
-            this._changeStrategy(newval);
+            this.$changeStrategy(newval);
             this.timer.enable(config.timerEnabled && newval);
         }, false);
 
@@ -51,7 +51,7 @@ class Player {
 
         this.suspended = false;
 
-        this._changeStrategy(isHuman);
+        this.$changeStrategy(isHuman);
 
         if (typeof config == "string"){
             this.name = config;
@@ -61,9 +61,11 @@ class Player {
     }
 
 
-    _changeStrategy(isHuman){
+    $changeStrategy(isHuman){
         if ( isHuman ){
-            if (this.board){
+            if (this.remoteManager){
+                this.strategy = new HumanRemoteStrategy.HumanRemoteStrategy();
+            }else if (this.board){
                 this.strategy = new HumanGuiStrategy.HumanGuiStrategy(this.board);
             }else{
                 this.strategy = new HumanCliStrategy.HumanCliStrategy();
@@ -74,15 +76,33 @@ class Player {
     }
 
     isHuman(){
-        return this.settings.isHuman;
+        return this.strategy.isHuman;
     }
 
-    /**human need a board to play */
+    isRemote(){
+        return this.strategy.isRemote;
+    }
+
+    /**human need a board to play with a GUI */
     setBoard(board){
         this.board = board;
         //update strategy with the new board
-        this._changeStrategy(this.isHuman())
+        this.$changeStrategy(this.isHuman());
     }
+
+    /**
+     * Set the player as remote.
+     * 
+     * @param {*} remoteManager used to communicate with the remote player. if null the player will be local
+     */
+    setRemote(remoteManager, model){
+        if (this.remoteManager != remoteManager){
+            this.remoteManager = remoteManager;
+            this.$changeStrategy(true);
+            if (remoteManager) this.strategy.init(remoteManager, model);
+        }
+    }
+
 
     /**
      * Call by the app when the player is the current player and should play
@@ -126,10 +146,9 @@ class Player {
     }
 
     /** interrupt a player while playing 
-     * @returns Promise when the player is interrupted
     */
     interrupt(){
-       return this.strategy.interrupt();
+       this.strategy.interrupt();
     }
 };
 

@@ -10,29 +10,38 @@ class HumanCliStrategy  {
     constructor(){
         this.isHuman = true;
         
-        let _currentPromise = null;
-    
-        let resolvePromise = ()=>{};
-
+        let resolveCurrentPromise = null;
+     
         this.selectColumn = function(model){
-        
-            _currentPromise = new Promise((resolve, reject)=>{
 
-                resolvePromise = resolve;
-
+            let currentPromise = new Promise((resolve, reject)=>{
+                resolveCurrentPromise = resolve; 
             });
-            return _currentPromise;
+        
+            //clear promise when fullfilled
+            currentPromise.finally(()=>{
+                resolveCurrentPromise = null;
+            })
+
+            return currentPromise;
         } 
 
+        /**
+         * just set the column to be played with setSelectedColumn() function
+         * 
+         * @param {*} columnNumber 
+         */
         this.setSelectedColumn = function(columnNumber){
-            resolvePromise(columnNumber);
+            resolveCurrentPromise(columnNumber);
         }
 
         /**
          * 
          */
         this.interrupt = function(){
-            return _currentPromise || Promise.resolve();
+            if (resolveCurrentPromise) {
+                resolveCurrentPromise();
+            }
         }
     }
 };

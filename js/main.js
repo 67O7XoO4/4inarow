@@ -7,16 +7,31 @@ import 'vue-material/dist/theme/default.css';
 import * as Board from './Board.js';
 import * as BoardModel from './BoardModel.js';
 import * as Game from './Game.js';
-import * as Settings from './Settings.js';
+
+import * as RemoteManager from './remote/RemoteManager.js'; 
+import * as GameHandler from './GameHandler.js'; 
+
+import * as Settings from './util/Settings.js';
+
 
 import i18n from './i18n/I18n.js'
-
+ 
+import qrcode from 'qrcode-generator';
 
 const NO_PLAYER = {key : ''};
 
 
+/** display a message in a snackbar */
 function displayMsg(msgKey, params){    
-    fourInARowApp.snackbar =  {msg: i18n.t(msgKey, params), show : true };
+    //TODO a level (error, warn, info)
+    if (fourInARowApp.snackbar.show){
+        //put in snackbar queue if exists
+        fourInARowApp.snackbar.queue = fourInARowApp.snackbar.queue || [];
+        fourInARowApp.snackbar.queue.push(    [msgKey, params]    );
+    }else{
+        fourInARowApp.snackbar.msg = i18n.t(msgKey, params)
+        fourInARowApp.snackbar.show = true ;    
+    }
 }
  
 
@@ -101,19 +116,41 @@ Vue.component('user-board', {
     ,
 })
 
+let remoteManager = new RemoteManager.RemoteManager();
+
 var fourInARowApp = new Vue({
     i18n,
     el: '#fourInARowApp',
+
     data: {
-        players: game.players,
-        winner : NO_PLAYER,
-        langs : i18n.availableLocales,
-        settings :settings,
+        game            : game,
+        players         : game.players,
+        winner          : NO_PLAYER,
+        langs           : i18n.availableLocales,
+        settings        : settings,
+        remoteManager   : remoteManager,
 
         // GUI only
-        snackbar : {msg : "", show : false},
+        snackbar : {msg : "", show : false, 
+                    onClose : function(){
+                        setTimeout(()=>{
+                            if (this.queue && this.queue.length > 0){
+                                displayMsg.apply(null, this.queue.shift());
+                            } 
+                        }, 250);
+                    }
+        },
         menu: {  show : false},
-        showRestartConfirm : false,
+        confirm : { show        : false ,
+                    title       : '',
+                    onConfirm   : ()=>{} },
+
+        dialogRemote : {show : false},
+        stepper : {
+            active : 'first',
+            first : false,
+            second : false
+        }
     },
     
     computed: {
@@ -162,11 +199,95 @@ var fourInARowApp = new Vue({
 
             if (game.isBeingPlayed() ){
                 //ask for a confirm
-                this.showRestartConfirm = true
+                this.confirm.show = true;
+                this.confirm.title = i18n.t('cancelRestartTitle');
+                this.confirm.onConfirm = this.onConfirmRestart;
+
             }else{
                 this.onConfirmRestart();
             }
         },
+
+        checkRemote : function(){
+
+            if (game.isBeingPlayed() ){
+                //ask for a confirm
+                this.confirm.show = true;
+                this.confirm.title = i18n.t('remoteTitle');
+                this.confirm.onConfirm = this.onConfirmRemote;
+            }else{
+                this.onConfirmRemote();
+            }
+        },
+
+        onConfirmRemote : function(){
+            this.dialogRemote.show = true;
+        },
+
+        inviteRemote : function(){
+            
+            // this.stepper[id] = true;
+            this.stepper.active = 'second'
+    
+            //TODO check and reset current connection if any
+
+            //create a url and QR code to be shared
+            //with the remote player
+            this.remoteManager.invite()
+            .then(()=>{
+
+                //create the QR code 
+                var typeNumber = 20;
+                var errorCorrectionLevel = 'Q';
+                var qr = qrcode(typeNumber, errorCorrectionLevel);
+                qr.addData(this.remoteManager.invitationUrl);
+                qr.make();
+                document.getElementById('qrcodePlacHolder').innerHTML = qr.createImgTag();
+
+                //once the invitation is shared, wait for connection
+                this.remoteManager.waitForConnection(new GameHandler.GameHandler(game, true))
+                .then(()=>{
+                    this.dialogRemote.show = false;
+                    displayMsg('remoteConnected');
+
+                    game.start();
+                });
+
+            });
+
+
+        },
+
+        checkCancelRemote : function(){
+            //ask for a confirm
+            this.confirm.show = true;
+            this.confirm.title = i18n.t('confirmCancelRemoteTitle');
+            this.confirm.onConfirm = this.cancelRemote;
+        },
+
+        cancelRemote : function(){
+            this.dialogRemote.show = false;
+            this.remoteManager.cancel();
+        },
+
+        copyToClipboard() {
+           
+            var div = document.getElementById("invitationUrl");
+            
+            if (document.selection) {
+                var range = document.body.createTextRange();
+                range.moveToElementText(div);
+                range.select().createTextRange();
+                document.execCommand("copy");
+              } else if (window.getSelection) {
+                var range = document.createRange();
+                range.selectNode(div);
+                window.getSelection().removeAllRanges();  
+                window.getSelection().addRange(range);
+                document.execCommand("copy");
+                displayMsg("textCopied");
+              }
+        }, 
 
         onConfirmRestart: function () {
             game.start();
@@ -178,8 +299,30 @@ var fourInARowApp = new Vue({
 window.onload = () => {
 
     let board = new Board.Board(new BoardModel.BoardModel(settings.board), "boardCanvas");
+    game.init(board);
 
-    game.start(board);
+    if (remoteManager.checkRemoteInvitation()){
+
+        displayMsg("tryingToConnectToRemote");
+
+        remoteManager.connectToRemoteInvitation()
+        .then(()=>{
+            //we are connected to a remote game
+            displayMsg('connectedToRemoteGame');
+
+            remoteManager.addHandler(new GameHandler.GameHandler(game, false)); 
+
+        },(msg)=>{
+            if (msg)  displayMsg(msg);
+            //standard local game
+            game.start();
+        });
+
+    }else{
+        //standard local game
+        game.start();
+    }
+
 
     
     // Main animation loop

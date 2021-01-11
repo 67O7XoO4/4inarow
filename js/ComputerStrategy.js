@@ -16,29 +16,33 @@ class ComputerStrategy  {
     depth = 5 ; 
  
     constructor(player, depth){
+        
+        this.waiting = false;
+        
         this.isHuman = false;
         this.player = player;
         this.depth = depth;
         
-        this._currentPromise = null;
+        this._currentPromiseResolve = null;
     }
 
     selectColumn(model){
-        this._currentPromise = new Promise((resolve) => {
+        
+        this.waiting = false;
+        
+        return new Promise((resolve) => {
             setTimeout(()=>{
+                this._currentPromiseResolve = resolve;
                 return resolve(this.pickColumn(model,  this.depth));
             }, 10);
         });
-
-        return this._currentPromise;
     };
 
     /**
      * do nothing. computer cannot be interrupted (TO BE DONE)
      */
     interrupt(){
-        //this.interrupted = true;
-        return this._currentPromise || Promise.resolve();
+        if(this._currentPromiseResolve) this._currentPromiseResolve();
     }
 
     /**
@@ -52,6 +56,8 @@ class ComputerStrategy  {
 
         cachedScores = [];
         let selection = minMax( model.clone(), this.player, this.player.nextPlayer, depth);
+        
+        this.waiting = false;
         
         return selection.num;
     }

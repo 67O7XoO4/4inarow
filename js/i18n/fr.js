@@ -1,6 +1,6 @@
 
 export default {
-    cancel :"Annule",
+    cancel :"Annuler",
     cancelRestartTitle : "Annule la partie et en démarre une nouvelle",
     changePlayerTypeTitle : 'Cliquer pour changer le type de joueur (ordinateur / Humain)',
     CantChangeSettings : "Pas possible de modifier ce paramétrage durant une partie",

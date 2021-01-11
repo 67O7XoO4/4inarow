@@ -1,4 +1,5 @@
 
+import * as Observable from './Observable.js';
 
 const storageName = '4inarow.settings';
 
@@ -7,6 +8,10 @@ const storageName = '4inarow.settings';
  */
 class Settings {
 
+    /**
+     * 
+     * @param {*} defaultSettings 
+     */
     constructor(defaultSettings){
         
         let globalSettings = this;
@@ -28,11 +33,13 @@ class Settings {
                     let oldval = obj.$values[prop]; 
                     obj.$values[prop] = newval;
                     //console.log(prop, oldval, newval);
-                    if (obj.$onChange[prop]) obj.$onChange[prop].call(null, newval, oldval);
+
+                    obj.$observable.emit(prop, newval, oldval);
+
                     //save the entire Settings (globalSettings) to localStorage
                     localStorage.setItem(storageName, JSON.stringify(globalSettings, (key, value)=>{
                         
-                        if (['$values', '$onChange'].includes(key)){
+                        if (['$values', '$observable'].includes(key)){
                             return undefined;
                         }
                         return value;
@@ -51,11 +58,11 @@ class Settings {
         //
         let initializeSettings = function(obj, defaultSettings, savedValues =  {}){
             
-            obj.$onChange = {};
+            obj.$observable = new Observable.Observable();
             obj.$values = {};
             
             obj.listen = function(prop, listener, defaultValue){
-                obj.$onChange[prop] = listener;
+                obj.$observable.addListener(prop, listener);
                 if (obj.$values[prop] == null){
                     initializeProperty(obj, prop, defaultValue );
                 }
@@ -78,6 +85,10 @@ class Settings {
     }
 };
 
+/**
+ * 
+ * @param {*} val 
+ */
 let init = function(val){
 
     val = val || {};
