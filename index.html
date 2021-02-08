@@ -279,7 +279,7 @@
             <div class=" md-layout-item md-medium-hide md-large-size-33 md-xlarge-size-50">
             </div>
 
-            <div v-if="remoteManager.isConnected"
+            <div v-if="remoteManager.isConnected && remoteManager.getMsgHandler()"
                   class="msg-box md-layout-item md-medium-size-100 md-large-size-66 md-xlarge-size-50">
               <div  class="msg-list">
                 <div v-for="msg in remoteManager.getMsgHandler().msgList" :class="{'msg-sent' : msg.type == 'sent', 'msg-received' : msg.type == 'received'}"  >{{ msg.msg }}</div>
