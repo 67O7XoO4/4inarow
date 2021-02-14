@@ -76,7 +76,7 @@ class Board {
 
             //map the canvas size to the displayed size
             board.canvas.width = board.canvas.parentElement.clientWidth;
-            board.canvas.height = board.canvas.parentElement.clientHeight;
+            board.canvas.height = board.canvas.parentElement.clientHeight - 5;//minus 5 for the progress bar
 
             //size 500
             config.columnWidth = Math.round(board.canvas.width  / (board.model.getConfig().nbColumns+1 ) ); //65
@@ -107,11 +107,9 @@ class Board {
         });
     }
 
-    /** get column number given the X position  */
+    /** get column given the X position  */
     getColumn(x){
-        let col = this.model.columns.find(column => getXinf(column) < x && x <= getXSup(column) );
-        if (col) return col.num;
-        return null;
+        return this.model.columns.find(column => getXinf(column) < x && x <= getXSup(column) );
     }
 
 

@@ -10,7 +10,7 @@ describe("Player", ()=> {
     expect(p).toBeInstanceOf(Player.Player);
     expect(p.name).toBe("thePlayer");
     expect(p.isHuman()).toBeFalse();
-    expect(p.key).toBeUndefined();
+    expect(p.key).toBe("thePlayer");
     expect(p.color).toBeUndefined();
     expect(p.nextPlayer).toBeNull();
     expect(p.strategy.depth).not.toBeUndefined();
@@ -26,7 +26,7 @@ describe("Player", ()=> {
     expect(p).toBeInstanceOf(Player.Player);
     expect(p.name).toBe("thePlayer");
     expect(p.isHuman()).toBeTrue();
-    expect(p.key).toBeUndefined();
+    expect(p.key).toBe("thePlayer");
     expect(p.color).toBeUndefined();
     expect(p.nextPlayer).toBeNull();
     expect(p.strategy.depth).toBeUndefined();

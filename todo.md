@@ -8,7 +8,6 @@
 - add hints 
 - add force computer to play at a given column
 - sounds ?
-- 2 players in remote
 - factorize color
 - fix computer with simple aligned 3 tokens and depth= 3
 - review user board L&F 
@@ -16,4 +15,4 @@
 
 - sitemap and robots.txt ?
 - add a license
-- run test with github action
+- jasmine not compatible with type:module and require/import

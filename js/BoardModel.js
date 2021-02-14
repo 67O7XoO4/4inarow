@@ -83,23 +83,9 @@ class BoardModel {
         onSizeChange();
     }
 
-    clone(){
-        let otherBoard = new BoardModel(this.settings);
-       
-        //clone columns
-        this.forEachCell((column, cell)=>{
-            otherBoard.columns[column.num].cells[cell.num].value = cell.value;
-        });
-        
-        this.playedCells.forEach((cell)=>{
-            otherBoard.playedCells.push(otherBoard.columns[cell.column.num].cells[cell.num]);
-        }) ;
-
-        return otherBoard;
-    }
-
     /**
-     * only for unit test.
+     * useful for unit test or to unserialize the boardmodel
+     * 
      * initialize the board with the given array
      * awaited format example (only the first 3 rows are described, the left ones are still empty):
      * [
@@ -109,9 +95,17 @@ class BoardModel {
      * ]
      * 
      * @param {*} array [[]] 
+     * @param players optionnal - array of the real player object. Must be found by their key in th array
      */
-    init(array){
+    init(array, players){
         let rowNum = 0;
+
+        if (players){
+            players = players.reduce(function(map, player) {
+                map[player.key] = player;
+                return map;
+            }, {});
+        }
 
         //empty the board
         this.forEachCell((column, cell)=>{
@@ -124,16 +118,44 @@ class BoardModel {
 
             array[i].forEach((value, colNum)=>{
 
-                if ( ! value) {
-                    value = EMPTY;
+                if ( value) {
+                    if (players){
+                        value = players[value] ;
+                    }
+                    this.columns[colNum].cells[rowNum].value = value;
                 }
-                this.columns[colNum].cells[rowNum].value = value;
             })
             rowNum++;
         }
         this.playedCells = [];
     }
 
+    /**
+     * serialize board data:
+     * {
+     *  settings : array of settings,
+     *  data : array of rows with the key of the value and 0 when empty
+     *          awaited format by the init() function above
+     * }
+     */
+    toArray(){
+        return { 
+            settings : this.settings.toArray(),
+            data : Array(this.settings.nbRows).fill().map((v,cellNum)=>{
+                let row = [];
+
+                this.columns.forEach(column=>{
+                    let value = column.cells[cellNum].value;
+                    if ( value === EMPTY) {
+                        value = 0;
+                    }else{
+                        value = value.key;
+                    }
+                    row.push(value);
+                });
+                return row;
+        }).reverse() };
+    }
     
     onSizeChange(onSizeChange){
         return this.$observable.addListener('onSizeChange', onSizeChange);

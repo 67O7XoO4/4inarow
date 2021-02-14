@@ -36,14 +36,15 @@ class Settings {
 
                     obj.$observable.emit(prop, newval, oldval);
 
-                    //save the entire Settings (globalSettings) to localStorage
-                    localStorage.setItem(storageName, JSON.stringify(globalSettings, (key, value)=>{
-                        
-                        if (['$values', '$observable'].includes(key)){
-                            return undefined;
-                        }
-                        return value;
-                    })); 
+                    //save the entire Settings (globalSettings) to localStorage if any
+                    if (typeof localStorage !== 'undefined')
+                        localStorage.setItem(storageName, JSON.stringify(globalSettings, (key, value)=>{
+                            
+                            if (['$values', '$observable'].includes(key)){
+                                return undefined;
+                            }
+                            return value;
+                        })); 
                 };
 
                 Object.defineProperty(obj, prop, {
@@ -60,7 +61,10 @@ class Settings {
             
             obj.$observable = new Observable.Observable();
             obj.$values = {};
-            
+            obj.toArray = function(){
+                return Object.assign({}, obj.$values);
+            }
+    
             obj.listen = function(prop, listener, defaultValue){
                 obj.$observable.addListener(prop, listener);
                 if (obj.$values[prop] == null){
@@ -78,7 +82,9 @@ class Settings {
             }
         }
 
-        let savedValues = JSON.parse(localStorage.getItem(storageName) || "{}" ) ;
+        let savedValues = {};
+        if (typeof localStorage !== 'undefined')
+            savedValues = JSON.parse(localStorage.getItem(storageName) || "{}" ) ;
 
         initializeSettings(this, defaultSettings, savedValues);
 

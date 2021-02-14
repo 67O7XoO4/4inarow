@@ -34,11 +34,11 @@ describe("BoardModel", ()=> {
     expect(boardModel.columns[3].isEmpty()).toBeFalse();
 
     expect(boardModel.columns[3].cells[0].isEmpty()).toBeFalse();
-    expect(boardModel.columns[3].cells[0].value).toBe(p1);
-    expect(boardModel.columns[3].cells[1].value).toBe(p1);
+    expect(boardModel.columns[3].cells[0].value.key).toBe(p1.key);
+    expect(boardModel.columns[3].cells[1].value.key).toBe(p1.key);
     expect(boardModel.columns[3].cells[2].isEmpty()).toBeTrue();
     
-    expect(boardModel.columns[4].cells[0].value).toBe(p2);
+    expect(boardModel.columns[4].cells[0].value.key).toBe(p2.key);
     expect(boardModel.columns[4].cells[1].isEmpty()).toBeTrue();
 
     expect(boardModel.columns[5].cells[0].isEmpty()).toBeTrue();
@@ -58,10 +58,12 @@ describe("BoardModel", ()=> {
     checkInit(boardModel);
   });
 
-  it("should be able to be cloned", ()=>{
+  it("should be able to be serialized and unserialized", ()=>{
     boardModel.init(boardAsArray);
+    let cloneAsArray = boardModel.toArray();
+    let otherBoard = new BoardModel.BoardModel(cloneAsArray.settings);
 
-    let otherBoard = boardModel.clone();
+    otherBoard.init(cloneAsArray.data, [p1, p2]);
     
     checkInit(otherBoard);
   });

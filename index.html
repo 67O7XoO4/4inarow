@@ -137,7 +137,7 @@
                       @click="copyToClipboard">{{remoteManager.invitationUrl}}</div>
                 <div id="qrcodePlacHolder"></div>
 
-                <md-progress-bar md-mode="indeterminate" v-if="remoteManager.waiting"></md-progress-bar>
+                <md-progress-bar md-mode="indeterminate" v-show="remoteManager.waiting"></md-progress-bar>
                 <div class="md-caption" v-if="remoteManager.waiting && remoteManager.invitationUrl">{{$t('waitingForRemotePlayer')}}</div>
 
             </md-step>
@@ -221,7 +221,8 @@
 
           <md-card class="md-layout-item md-xsmall-size-100 board-card md-elevation-2"> 
             <canvas id="boardCanvas"></canvas>  
-            <md-progress-bar md-mode="indeterminate" v-if="remoteManager.waiting || game.currentPlayer.strategy.waiting"></md-progress-bar>
+            <md-progress-bar md-mode="indeterminate" 
+                  v-show="remoteManager.waiting || game.currentPlayer.strategy.waiting"></md-progress-bar>
              
           </md-card>
 

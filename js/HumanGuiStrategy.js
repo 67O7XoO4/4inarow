@@ -12,13 +12,23 @@ class HumanGuiStrategy  {
         this.board = board;
     }
 
+
     selectColumn(model){
     
+        let selectColumnFromPos = function(board, x){
+            let selectedColumn = board.getColumn(x);
+            if ( selectedColumn && ! selectedColumn.isComplete()){
+                board.setSelectedColnum(selectedColumn.num);
+            }else{
+                selectedColumn = null;
+            }
+            return selectedColumn;
+        }
+
         return new Promise((resolve, reject)=>{
 
             //reset the selected column to the current mouse position
-            let selectedColumn = this.board.getColumn(mousePos.x);
-            this.board.setSelectedColnum(selectedColumn);
+            let selectedColumn = selectColumnFromPos(this.board, mousePos.x);
 
             //listen to mouse event, find the selected column and play
 
@@ -30,8 +40,7 @@ class HumanGuiStrategy  {
                 mousePos.x = evt.clientX - rect.left;
                 mousePos.y = evt.clientY - rect.top;
         
-                selectedColumn = this.board.getColumn(mousePos.x);
-                this.board.setSelectedColnum(selectedColumn);
+                selectedColumn = selectColumnFromPos(this.board, mousePos.x);
                 //console.debug(mousePos);
             };
             this.board.canvas.addEventListener('mousemove', mousemove, false);
@@ -54,10 +63,10 @@ class HumanGuiStrategy  {
                  this.$clearAll = null;
 
                 if(isInterrupted){
-                    selectedColumn = null;
+                    resolve(null);
+                }else{
+                    resolve(selectedColumn.num);
                 }
-                resolve(selectedColumn);
-                
             };
             this.$clearAll = removeEventListeners;
         });

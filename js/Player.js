@@ -55,6 +55,7 @@ class Player {
 
         if (typeof config == "string"){
             this.name = config;
+            this.key = config;
         }else{
             Object.assign(this, config);
         }
