@@ -19,40 +19,6 @@
     margin-right: auto;
 }
 
-.msg-box{
-    min-height: 0;
-} 
-
-.msg-box .md-field .md-input{
-    padding-right:36px
-}
-
-.msg-box .md-field {
-    margin:0 
-}
-
-.msg-sent{
-    text-align: right;
-    color: gray;
-    font-size: 12px;
-}
-
-.msg-received{
-    text-align: left;
-    color: black;
-    font-size: 12px;
-}
-
-.md-card.user-card {
-    max-width: 250px; 
-    background: #D7D7D7;
-}
-.md-app-content .md-card.user-card {
-    margin: 4px;
-}
-.md-card.user-card.current-player {
-    border: solid 1px;  
-}
 
 .md-card.board-card  {
     width: min(90vw, 80vh);
@@ -62,19 +28,20 @@
     background-color: rgb(230, 230, 230); 
 }
 
-.md-content.md-theme-default{
+.md-content.md-theme-default.md-app-content{
     background: transparent;
     padding: 0 4px 0;
 }
 
-.md-app.md-theme-default {
+.fourinarow-app.md-app.md-theme-default.md-layout-row {
     background: content-box radial-gradient(white, rgb(30, 130, 220));
+    height : 100vh;
 }
 
-.md-app.md-theme-default.YELLOW.win {
+.fourinarow-app.md-app.md-theme-default.md-layout-row.YELLOW.win {
     background: radial-gradient(circle at top left, rgb(255, 255, 0), rgb(30, 130, 220));
 }
-.md-app.md-theme-default.RED.win {
+.fourinarow-app.md-app.md-theme-default.md-layout-row.RED.win {
     background: radial-gradient(circle at top left, rgb(255, 100, 100), rgb(30, 130, 220));
 }
 .md-app.md-theme-default.win {
@@ -99,4 +66,3 @@
 
 @import 'material-icons/iconfont/material-icons.css';
 @import 'vue-material/dist/vue-material.css';
-@import 'vue-material/dist/theme/default.css';

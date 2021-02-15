@@ -14,9 +14,17 @@ import * as GameHandler from './GameHandler.js';
 import * as Settings from './util/Settings.js';
 
 
-import i18n from './i18n/I18n.js'
+import i18n from './i18n/I18n.js';
  
 import qrcode from 'qrcode-generator';
+
+import Hello from './components/Hello.vue';
+import UserBoard from './components/UserBoard.vue';
+import DrawerContent from './components/DrawerContent.vue';
+import MsgBox from './components/MsgBox.vue';
+import Spacer from './components/Spacer.vue';
+
+
 
 const NO_PLAYER = {key : ''};
 
@@ -72,61 +80,26 @@ let game = new Game.Game(event=>{
     if (actions[event]) actions[event].call();
 }, settings, i18n);
 
+let remoteManager = new RemoteManager.RemoteManager();
+
 i18n.locale = settings.listen('lang', (newval)=>{
     i18n.locale = newval;
 }, 'en');
 
 Vue.use(VueMaterial); 
 
-// init GUI
-Vue.component('user-board', {
-    template: '#user-board-template',
-    data: () => ({
-        dialogSettings : {show : false}
-    }),
-    props: ['player', 'display-settings'],
-    
-    computed :{
-        formattedTimePassed() {
-            const timePassed = this.player.timer.timePassed / 1000;
-            let minutes = Math.floor(timePassed / 60);
-            let seconds = Math.floor(timePassed % 60);
-            if (minutes < 10) {
-                minutes = `0${minutes}`;
-            }
-            if (seconds < 10) {
-                seconds = `0${seconds}`;
-            }
-            return `${minutes}:${seconds}`;
-          },
-
-    },
-    methods : {
-        resume : function(){
-            this.player.suspended = false;
-            this.$emit('resume');
-        },
-        
-        pause : function(){ 
-            this.player.suspended = true;
-            this.$emit('pause');
-        },
-
-    }
-    ,
-})
-
-let remoteManager = new RemoteManager.RemoteManager();
 
 var fourInARowApp = new Vue({
     i18n,
     el: '#fourInARowApp',
-
+    components: {
+        Hello, UserBoard, DrawerContent, MsgBox, Spacer
+      },
     data: {
         game            : game,
         players         : game.players,
         winner          : NO_PLAYER,
-        langs           : i18n.availableLocales,
+        
         settings        : settings,
         remoteManager   : remoteManager,
 
@@ -165,10 +138,6 @@ var fourInARowApp = new Vue({
     methods: {
         isUndoDisabled() {
             return ! game.isStarted() ;
-        },
-
-        isGameSettingsDisabled(){
-            return game.isBeingPlayed() ;
         },
 
         //resume game after a player has been suspended

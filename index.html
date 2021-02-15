@@ -29,85 +29,6 @@
     
     <link rel="stylesheet" href="css/style.css">
     
-   <script type="text/x-template" id="user-board-template">
-    
-      <md-card class="user-card"
-           :class="{'md-elevation-6' : player.isCurrentPlayer, 'current-player' : player.isCurrentPlayer  }"
-           :style="{'border-color' : player.color}">
-        <md-card-header>
-          <md-avatar :style="{'background-color' : player.color}">
-            <md-icon v-if="player.isHuman() && ! player.isRemote()" :title="$t('playedByHumanTitle')" >person</md-icon>
-            <md-icon v-if="player.isRemote()" :title="$t('playedRemoteTitle')">cloud</md-icon>
-            <md-icon v-if="! player.isHuman()" :title="$t('playedByComputerTitle')" >computer</md-icon>
-          </md-avatar> 
-          
-            <div class="md-title md-small-hide">{{player.name}}</div>
-            <div v-if="player.isHuman()"  class="md-subhead md-small-hide" >{{$t('playedByHumanTitle')}}</div>
-            <div v-if="! player.isHuman()" class="md-subhead md-small-hide">{{$t('playedByComputerTitle')}}</div>
-           
-          
-        </md-card-header>
-
-        <md-card-actions>
-          
-          <md-dialog  :md-active.sync="dialogSettings.show">
-            <md-dialog-title>{{$t('settings')}}</md-dialog-title>
-            <md-dialog-content>
-              <md-field>
-                <div class="md-subhead" v-if="player.isHuman()">{{$t('playedByHumanTitle')}}</div>
-                <div class="md-subhead"  v-if=" ! player.isHuman()">{{$t('playedByComputerTitle')}}</div>
-                <md-subheader>{{$t('changePlayerTypeTitle')}}</md-subheader>
-                <md-switch id="changePlayerType" v-model="player.settings.isHuman" :title="$t('changePlayerTypeTitle')"></md-switch>
-              </md-field>
-
-              <md-list v-show="! player.isHuman()">
-                <md-subheader>{{$t('depth')}}</md-subheader>
-                <md-list-item v-for="i in [3,4,5,6,7,8]" :key="i" >
-                  <md-radio v-model="player.settings.level" :value="i"  />
-                  <span class="md-list-item-text"> {{ $t('level_' + i) }}</span>
-                  <md-badge class="md-primary" :md-content="i" :title="$t('level_' + i)" />
-                </md-list-item>
-              </md-list>
-            </md-dialog-content>
-            <md-dialog-actions>
-              <md-button class="md-primary" @click="dialogSettings.show = false">{{ $t('close')}}</md-button>
-            </md-dialog-actions>
-          </md-dialog>
-
-          <span v-if="player.isHuman() && player.timer.enabled">{{ formattedTimePassed }}</span>
-
-          <md-chip class="md-primary"  v-if="! player.isHuman()"
-                  :title="$t('level_' + player.strategy.depth)">{{ player.strategy.depth }}</md-chip>
-           
-
-          <!-- settings -->
-          <md-button @click="dialogSettings.show = true"
-            :title="$t('playerSettingsTitle')"
-            class="md-icon-button"
-            v-if="displaySettings">
-            <md-icon>settings</md-icon>
-          </md-button>
-
-          <!-- resume -->
-          <md-button v-on:click="resume"  
-            :title="$t('playerSuspendedTitle')"
-            class="md-fab md-accent"
-            v-if="! player.isHuman() && player.suspended">
-            <md-icon>play_circle_outline</md-icon>
-          </md-button>
-
-          <!-- pause -->
-          <md-button v-on:click="pause"  
-            :title="$t('suspendPlayerTitle')"
-            class="md-icon-button "
-            v-if="! player.isHuman() && ! player.suspended">
-            <md-icon>pause_circle_outline</md-icon>
-          </md-button>
-        </md-card-actions>
-      </md-card>
-      
-    </script>
-
   </head>
 
 
@@ -153,67 +74,20 @@
       </md-dialog>
 
      
-      <md-app id="fourinarow" :class="winnerClass"> <!-- {'win' : winner.key != ''} -->
+      <md-app class="fourinarow-app" :class="winnerClass"> <!-- {'win' : winner.key != ''} -->
+        
         <md-app-toolbar class="md-primary">
           <md-button class="md-icon-button" @click="menu.show = true">
             <md-icon>menu</md-icon>
           </md-button>
           <span class="md-title">{{ $t("title") }} </span>
         </md-app-toolbar>
-
+        
         <md-app-drawer  md-swipeable :md-active.sync="menu.show">
-          <md-toolbar class="md-transparent" md-elevation="0">
-            <span class="md-title">{{ $t("title") }}</span>
-          </md-toolbar>
-          <md-list>
-            <md-list-item>
-              <md-field>
-                <label for="lang">{{ $t("chooseLang") }}</label>
-                <md-select id="lang" v-model="settings.lang">
-                  <md-option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">{{ lang }}</option>
-                </md-select>
-              </md-field>
-            </md-list-item>
-            <md-list-item>
-              <md-switch v-model="settings.timerEnabled">{{ $t("useTimer") }}</md-switch>
-            </md-list-item>
-            <md-list-item>
-               <md-field>
-                <label for="nbColumns">{{ $t("nbColumns") }}</label>
-                <md-select id="nbColumns" md-dense v-model="settings.board.nbColumns" :disabled="isGameSettingsDisabled()" >
-                  <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i" :key="i" :disabled=" settings.board.nbCellsToWin > Math.max(settings.board.nbRows, i)">
-                    {{ i }} <span v-if="i==7" class="md-caption"> (standard)</span>
-                  </option>
-                </md-select>
-                <span class="md-helper-text" v-if="isGameSettingsDisabled()">{{ $t("CantChangeSettings")}}</span>
-              </md-field>
-            </md-list-item>
-            <md-list-item>
-              <md-field>
-               <label for="nbRows">{{ $t("nbRows") }}</label>
-               <md-select id="nbRows" md-dense v-model="settings.board.nbRows" :disabled="isGameSettingsDisabled()">
-                 <md-option  v-for="i in [3,4,5,6,7,8,9]"  :value="i" :key="i" :disabled=" settings.board.nbCellsToWin > Math.max(i, settings.board.nbColumns)">
-                   {{ i }}<span v-if="i==6" class="md-caption"> (standard)</span> 
-                </option>
-               </md-select>
-               <span class="md-helper-text" v-if="isGameSettingsDisabled()">{{ $t("CantChangeSettings")}}</span>
-              </md-field>
-           </md-list-item>
-           <md-list-item>
-            <md-field>
-             <label for="nbCellsToWin">{{ $t("nbCellsToWin") }}</label>
-             <md-select id="nbCellsToWin" md-dense v-model="settings.board.nbCellsToWin" :disabled="isGameSettingsDisabled()">
-                <md-option  v-for="i in [3,4,5,6,7]"  :value="i" :key="i"  :disabled=" i > Math.max(settings.board.nbRows, settings.board.nbColumns)">
-                 {{ i }} <span v-if="i==4" class="md-caption"> (standard)</span>
-                </option>
-             </md-select>
-             <span class="md-helper-text" v-if="isGameSettingsDisabled()">{{ $t("CantChangeSettings")}}</span>
-            </md-field>
-         </md-list-item>
-            </md-list>
 
+          <drawer-content :settings='settings' :disabled='game.isBeingPlayed()'></drawer-content>
 
-      </md-app-drawer>
+        </md-app-drawer>
 
       <md-app-content>
 
@@ -230,7 +104,7 @@
 
             <div class=" md-layout-item md-medium-size-100 md-large-size-66 md-xlarge-size-50 ">
               <md-toolbar md-elevation="1" class=" md-dense">
-             
+               
                 <!-- UNDO -->
                 <md-button  class="md-icon-button"
                             @click="undo"
@@ -266,42 +140,23 @@
               </md-toolbar>
             </div>
 
-            <div class=" md-layout-item md-medium-hide md-large-size-33 md-xlarge-size-50">
+            <spacer></spacer>
+
+            <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
+              <user-board  :player='players[0]'  v-on:resume='resume' 
+                        :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
 
             <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
-              <user-board  :player='players[0]'  v-on:resume='resume' :display-settings="! remoteManager.isConnected" ></user-board>
-            </div>
-
-            <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
-              <user-board :player='players[1]' v-on:resume='resume' :display-settings="! remoteManager.isConnected" ></user-board>
+              <user-board :player='players[1]' v-on:resume='resume' 
+                        :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
             
-            <div class=" md-layout-item md-medium-hide md-large-size-33 md-xlarge-size-50">
-            </div>
+            <spacer></spacer>
+            
 
-            <div v-if="remoteManager.isConnected && remoteManager.getMsgHandler()"
-                  class="msg-box md-layout-item md-medium-size-100 md-large-size-66 md-xlarge-size-50">
-              <div  class="msg-list">
-                <div v-for="msg in remoteManager.getMsgHandler().msgList" :class="{'msg-sent' : msg.type == 'sent', 'msg-received' : msg.type == 'received'}"  >{{ msg.msg }}</div>
-              </div>
-              <!-- send msg-->
-              <md-field md-inline>
-                <label>{{ $t("tapYourMessageHere") }}</label>
-                <md-input type="text" v-model="remoteManager.getMsgHandler().msg"  
-                    @keyup.enter="remoteManager.getMsgHandler().sendMsg()" 
-                    ></md-input>
-                <md-button  class="md-button md-icon-button md-dense md-input-action md-clear"
-                    @click="remoteManager.getMsgHandler().sendMsg()"
-                    :title="$t('sendMsg')" 
-                    >
-                  <md-icon>send</md-icon>
-                </md-button>
-
-              </md-field>
-            </div>
+            <msg-box :remote-manager='remoteManager'></msg-box>
                
-
 
           </div>
 
