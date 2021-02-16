@@ -153,7 +153,7 @@ class Game {
      * check for player suspension and ask him to play otherwise
      */
     nextMove(){
-
+        // console.log("nextMove", this.currentPlayer.name);
         if ( ! this.currentPlayer.suspended){
                 
             this.currentPlayer.selectColumn(this.model)
@@ -163,6 +163,7 @@ class Game {
                     console.log("interrupted");
                     return;
                 }
+                // console.log("nextMove columnNumber",columnNumber, this.currentPlayer.name);
                 // Let's make the current player play at the selected column
                 // Chek if he wins
                 // or else ask the next user to play
@@ -187,6 +188,7 @@ class Game {
             } )
 
         }else{
+            // console.log("nextMove PLAYER_SUSPENDED", this.currentPlayer.name);
             this.$observable.emit( EVENTS.PLAYER_SUSPENDED);
         }
     }

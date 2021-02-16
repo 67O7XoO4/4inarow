@@ -107,6 +107,7 @@ var fourInARowApp = new Vue({
         snackbar : {msg : "", show : false, 
                     onClose : function(){
                         setTimeout(()=>{
+                            //pop remaining messages. see displayMsg()
                             if (this.queue && this.queue.length > 0){
                                 displayMsg.apply(null, this.queue.shift());
                             } 
@@ -141,8 +142,9 @@ var fourInARowApp = new Vue({
         },
 
         //resume game after a player has been suspended
-        resume(){
-            game.nextMove();
+        resume(player){
+            // relaunch game if it was waiting for the suspended user
+            if (game.currentPlayer == player) game.nextMove();
         },
 
         //undo last move (even if won)

@@ -41,7 +41,7 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interru
     if (interruptable && interruptable.isInterrupted()){
         return {
             score: DRAW_SCORE , 
-            num : model.getLastPlayedCell().column.num
+            num : null
         };
     }
     //evaluation of the last move (of the current player)

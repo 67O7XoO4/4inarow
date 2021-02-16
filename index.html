@@ -143,12 +143,12 @@
             <spacer></spacer>
 
             <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
-              <user-board  :player='players[0]'  v-on:resume='resume' 
+              <user-board  :player='players[0]'  v-on:resume='resume(players[0])' 
                         :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
 
             <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
-              <user-board :player='players[1]' v-on:resume='resume' 
+              <user-board :player='players[1]' v-on:resume='resume(players[1])' 
                         :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
             
