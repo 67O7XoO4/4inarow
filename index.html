@@ -114,11 +114,11 @@
                 </md-button>
                 <div class="md-toolbar-section-end">
                   <!-- start a new game -->
-                  <md-button  :class="{'md-icon-button' : winner.key == '', 'md-raised': winner.key != '','md-accent': winner.key != ''}"
+                  <md-button  :class="{'md-icon-button' : ! game.isOver(), 'md-raised': game.isOver(),'md-accent': game.isOver()}"
                               @click="checkRestart"
                               v-if="(! remoteManager.isConnected) || remoteManager.isServer "
                               :title="$t('cancelRestartTitle')" >
-                    <md-icon>play_circle_outline</md-icon><span v-if=" winner.key != '' "  >{{ $t("newGame") }}</span>
+                    <md-icon>play_circle_outline</md-icon><span v-if=" game.isOver() "  >{{ $t("newGame") }}</span>
                   </md-button>
 
                   <!-- remote -->

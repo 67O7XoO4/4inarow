@@ -153,8 +153,8 @@ describe("GameHandler", () => {
         
         expect(g.isStarted()).toBeFalse();
         expect(g.isOver()).toBeFalse();
-        expect(g.isDraw()).toBeFalse();
-        expect(g.isWon()).toBeFalse();
+        expect(g.isDraw).toBeFalse();
+        expect(g.isWon).toBeFalse();
         expect(g.isBeingPlayed()).toBeFalse();
 
         gh.playAndAssert(()=>{

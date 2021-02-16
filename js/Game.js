@@ -58,6 +58,10 @@ class Game {
 
         this.currentPlayer = this.players[0];
         this.currentPlayer.initPlayer(this.players[1]);
+
+        this.isDraw = false;
+        this.isWon = false;
+        
     }
     
     /**
@@ -80,23 +84,7 @@ class Game {
      * 
      */
     isOver(){
-        return this.model != null && (this.model.isComplete() || this.model.checkIfLastPlayWin());
-    }
-
-    /**
-     * 
-     */
-    isDraw(){
-        return this.model != null 
-                && this.model.isComplete()
-                && ! this.model.checkIfLastPlayWin();
-    }
-    
-    /**
-     * 
-     */
-    isWon(){
-        return this.model != null && this.model.checkIfLastPlayWin();
+        return this.isDraw   || this.isWon;
     }
 
     isBeingPlayed(){
@@ -110,6 +98,9 @@ class Game {
      */
     init(boardOrModel){
         
+        this.isDraw = false;
+        this.isWon = false;
+
         if (boardOrModel){
             //if no board, then we must already have the model
             //For instance, if the player start a new game after a first one
@@ -171,12 +162,13 @@ class Game {
 
                 if ( this.model.checkIfLastPlayWin()){
         
+                    this.isWon = true;
                     this.$observable.emit( EVENTS.PLAYER_WIN, this.currentPlayer);
-        
+
                 }else if ( this.model.isComplete()){
                     //draw game
+                    this.isDraw = true;
                     this.$observable.emit( EVENTS.DRAW_GAME);
-                    
                 }else{
                     this.$observable.emit( EVENTS.JUST_PLAYED, this.currentPlayer);
                     

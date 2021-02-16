@@ -35,8 +35,8 @@ describe("Game", ()=> {
 
     expect(g.isStarted()).toBeFalse();
     expect(g.isOver()).toBeFalse();
-    expect(g.isDraw()).toBeFalse();
-    expect(g.isWon()).toBeFalse();
+    expect(g.isDraw).toBeFalse();
+    expect(g.isWon).toBeFalse();
     expect(g.isBeingPlayed()).toBeFalse();
     
     g.start(new BoardModel.BoardModel());
@@ -90,8 +90,8 @@ describe("Game", ()=> {
 
         expect(g.isStarted()).toBeTrue();
         expect(g.isOver()).toBeTrue();
-        expect(g.isDraw()).toBeFalse();
-        expect(g.isWon()).toBeTrue();
+        expect(g.isDraw).toBeFalse();
+        expect(g.isWon).toBeTrue();
         expect(g.isBeingPlayed()).toBeFalse();
 
         done();
@@ -131,8 +131,8 @@ describe("Game", ()=> {
         
         expect(g.isStarted()).toBeTrue();
         expect(g.isOver()).toBeTrue();
-        expect(g.isDraw()).toBeTrue();
-        expect(g.isWon()).toBeFalse();
+        expect(g.isDraw).toBeTrue();
+        expect(g.isWon).toBeFalse();
         expect(g.isBeingPlayed()).toBeFalse();
 
         done();
