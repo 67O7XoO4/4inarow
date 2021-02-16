@@ -4,7 +4,7 @@ const CANT_PLAY_SCORE = MAX_SCORE + 1;
 
 const DRAW_SCORE = 0;
 const EMTPY_CELL_SCORE = 1;
-const SAME_PLAYER_CELL_SCORE = 4;
+const SAME_PLAYER_CELL_SCORE = 5;
 
 let cachedScores = [];
 
@@ -16,7 +16,7 @@ let cachedScores = [];
  */
 function pickColumn(model, playerToBeEvaluated, depth, interruptable){
     cachedScores = [];
-    let selection = minMax( model, playerToBeEvaluated, playerToBeEvaluated.nextPlayer, depth, interruptable);
+    let selection = minMax( model, playerToBeEvaluated, playerToBeEvaluated.nextPlayer, depth, interruptable, true);
     
     return selection.num;
 }
@@ -32,7 +32,7 @@ function pickColumn(model, playerToBeEvaluated, depth, interruptable){
  * 
  * @returns {score: columnScore, num : column.num}
  */
-function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interruptable){
+function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interruptable, firstRecursion){
 
     let initialScore = null;
     let currentPlayerCoeff = (currentPlayer === playerToBeEvaluated ? 1 : -1);
@@ -75,6 +75,8 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interru
             //maximize the score
             initialScore = - CANT_PLAY_SCORE;
             minOrMax = (columnScore, currenScore)=>{
+                if (columnScore == currenScore)
+                    return headsOrTails();
                 return columnScore > currenScore
             };
     
@@ -82,22 +84,24 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interru
             //minimizing score 
             initialScore = CANT_PLAY_SCORE;
             minOrMax = (columnScore, currenScore)=>{
+                if (columnScore == currenScore)
+                    return headsOrTails();
                 return columnScore < currenScore
             };
         }
 
         let scoreKey = model.key()+currentPlayer.key;
-        let cachedScore = cachedScores[scoreKey];
-        if ( ! cachedScore){
+        let score = cachedScores[scoreKey];
+        if ( ! score){
             //go deeper
-            cachedScore =  model.columns.reduce((currentSelection, column)=>{
+            score =  model.columns.reduce((currentSelection, column)=>{
 
                 let columnScore=null;
 
                 if(! column.isComplete()){
                     //the next player plays and become the current player
                     model.play(column, currentPlayer.nextPlayer);
-                    columnScore = minMax(model, playerToBeEvaluated, currentPlayer.nextPlayer, currentDepth - 1).score;
+                    columnScore = minMax(model, playerToBeEvaluated, currentPlayer.nextPlayer, currentDepth - 1, false).score;
                     column.removeLastPlay();
                 
                 }else{
@@ -105,18 +109,23 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interru
                     columnScore = initialScore;
                 }
                 
-               // console.log('minMax:', currentPlayer.nextPlayer.key, column.num,"=" ,columnScore, "depth=",currentDepth);
+                 if (firstRecursion)
+                    console.log('minMax:', column.num,"=" ,columnScore);
                 
                 return  minOrMax(columnScore, currentSelection.score) ? 
                             {score: columnScore, num : column.num} : currentSelection;
 
             }, {score: initialScore, num : 0});//initial selection
 
-            cachedScores[scoreKey] = cachedScore;
+            cachedScores[scoreKey] = score;
         }
-        return cachedScore;
+        return score;
     }
 };
+
+function headsOrTails() {
+    return Math.floor(Math.random() * Math.floor(2));
+}
 
 /**
  * 

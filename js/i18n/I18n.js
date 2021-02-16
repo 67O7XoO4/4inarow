@@ -16,7 +16,7 @@ const messages = {
   const i18n = new VueI18n({ 
     locale: navigator.language,
     fallbackLocale: 'en',
-    // silentTranslationWarn: true,
+    silentTranslationWarn: true,
     messages 
   })
 

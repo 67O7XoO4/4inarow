@@ -31,8 +31,8 @@
 
           <md-list v-show="! player.isHuman()">
             <md-subheader>{{$t('depth')}}</md-subheader>
-            <md-list-item v-for="i in [3,4,5,6,7,8]" :key="i" >
-              <md-radio v-model="player.settings.level" :value="i"  />
+            <md-list-item v-for="i in [2, 4,6,8, 10]" :key="i" >
+              <md-radio v-model="player.settings.level" :value="i"></md-radio>
               <span class="md-list-item-text"> {{ $t('level_' + i) }}</span>
               <md-badge class="md-primary" :md-content="i" :title="$t('level_' + i)" />
             </md-list-item>
