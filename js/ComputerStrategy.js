@@ -30,20 +30,14 @@ class ComputerStrategy  {
             this._currentPromiseResolve = resolve; 
 
             if (this.worker== null){
-                //console.log('typeof Worker' , Worker);
-                // if ( ! window && !! window.Worker){
-                //     var Worker = require("tiny-worker");//webWorker for node.js useful for unit test with jasmine
-                //     worker = new Worker("../../../js/ComputerStrategyWorker.js",[], {esm: true});
-                // }else{
-                    this.worker = new Worker("ComputerStrategyWorker.js");
-                // }
+                this.worker = new Worker("ComputerStrategyWorker.js");
             }
                     
             this.worker.onerror = function(oEvent) {
                 console.log('Worker on error : ', oEvent);
 
                 this.waiting = false;
-                resolve(null); //TODO 
+                resolve(null);
             };
 
             //run MinMax
@@ -64,7 +58,7 @@ class ComputerStrategy  {
             };
             
         });
-    };
+    }
 
     /**
      */

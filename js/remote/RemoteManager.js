@@ -11,7 +11,9 @@ const CLOSING = 'CLOSING';
 //useful to mock peer.js dependency
 class PeerFactory {
 
-    constructor(){}
+    constructor(){
+        // nothing to do
+    }
 
     createPeer(){
 

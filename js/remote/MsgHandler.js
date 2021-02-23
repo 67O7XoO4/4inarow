@@ -10,6 +10,7 @@ class MsgHandler {
 
         
     constructor(){
+        // nothing special
     }
 
     onOpen(send){
@@ -27,7 +28,7 @@ class MsgHandler {
 
         this.msgList.shift();
         this.msg = '';
-    };
+    }
 
     sendMsg(){
         this.send(this.msg);

@@ -79,6 +79,6 @@ class HumanGuiStrategy  {
         //we have been interrupted, we clean the listener (if exist) and abort (reject) the play
         if (this.$clearAll) this.$clearAll(true);
     }
-};
+}
 
 export {HumanGuiStrategy as HumanGuiStrategy};

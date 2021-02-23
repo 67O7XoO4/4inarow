@@ -89,7 +89,7 @@ class Settings {
         initializeSettings(this, defaultSettings, savedValues);
 
     }
-};
+}
 
 /**
  * 

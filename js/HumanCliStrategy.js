@@ -44,6 +44,6 @@ class HumanCliStrategy  {
             }
         }
     }
-};
+}
 
 export {HumanCliStrategy};

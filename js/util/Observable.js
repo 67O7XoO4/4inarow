@@ -9,6 +9,7 @@ class Observable {
     $listeners = {};
 
     constructor(){
+        // nothing to do
     }
 
     /**

@@ -74,7 +74,7 @@
       </md-dialog>
 
      
-      <md-app class="fourinarow-app" :class="winnerClass"> <!-- {'win' : winner.key != ''} -->
+      <md-app class="fourinarow-app" :class="winnerClass">
         
         <md-app-toolbar class="md-primary">
           <md-button class="md-icon-button" @click="menu.show = true">
@@ -140,7 +140,7 @@
               </md-toolbar>
             </div>
 
-            <spacer></spacer>
+            <space-block></space-block>
 
             <div class=" md-layout-item md-medium-size-50 md-large-size-33 md-xlarge-size-25">
               <user-board  :player='players[0]'  v-on:resume='resume(players[0])' 
@@ -152,7 +152,7 @@
                         :display-settings="! remoteManager.isConnected" ></user-board>
             </div>
             
-            <spacer></spacer>
+            <space-block></space-block>
             
 
             <msg-box :remote-manager='remoteManager'></msg-box>

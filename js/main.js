@@ -18,11 +18,10 @@ import i18n from './i18n/I18n.js';
  
 import qrcode from 'qrcode-generator';
 
-import Hello from './components/Hello.vue';
 import UserBoard from './components/UserBoard.vue';
 import DrawerContent from './components/DrawerContent.vue';
 import MsgBox from './components/MsgBox.vue';
-import Spacer from './components/Spacer.vue';
+import SpaceBlock from './components/SpaceBlock.vue';
 
 
 
@@ -31,7 +30,7 @@ const NO_PLAYER = {key : ''};
 
 /** display a message in a snackbar */
 function displayMsg(msgKey, params){    
-    //TODO a level (error, warn, info)
+    
     if (fourInARowApp.snackbar.show){
         //put in snackbar queue if exists
         fourInARowApp.snackbar.queue = fourInARowApp.snackbar.queue || [];
@@ -93,7 +92,7 @@ var fourInARowApp = new Vue({
     i18n,
     el: '#fourInARowApp',
     components: {
-        Hello, UserBoard, DrawerContent, MsgBox, Spacer
+        UserBoard, DrawerContent, MsgBox, SpaceBlock
       },
     data: {
         game            : game,
@@ -117,7 +116,9 @@ var fourInARowApp = new Vue({
         menu: {  show : false},
         confirm : { show        : false ,
                     title       : '',
-                    onConfirm   : ()=>{} },
+                    onConfirm   : ()=>{
+                        // no confirm 
+                    } },
 
         dialogRemote : {show : false},
         stepper : {
@@ -241,15 +242,15 @@ var fourInARowApp = new Vue({
 
         copyToClipboard() {
            
-            var div = document.getElementById("invitationUrl");
+            let div = document.getElementById("invitationUrl");
             
             if (document.selection) {
-                var range = document.body.createTextRange();
+                let range = document.body.createTextRange();
                 range.moveToElementText(div);
                 range.select().createTextRange();
                 document.execCommand("copy");
               } else if (window.getSelection) {
-                var range = document.createRange();
+                let range = document.createRange();
                 range.selectNode(div);
                 window.getSelection().removeAllRanges();  
                 window.getSelection().addRange(range);
