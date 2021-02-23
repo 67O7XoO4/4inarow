@@ -151,6 +151,6 @@ class Player {
     interrupt(){
        this.strategy.interrupt();
     }
-};
+}
 
 export {Player};

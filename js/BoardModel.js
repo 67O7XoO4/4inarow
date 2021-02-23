@@ -185,8 +185,10 @@ class BoardModel {
     undoLastMove(){
 
         let isWinning = this.checkIfLastPlayWin();
-        let cell = this.playedCells.pop();
-        cell.value = EMPTY;
+        
+        this.playedCells
+            .pop()
+            .value = EMPTY;
 
         if (isWinning){
             this.forEachCell((column, cell)=>{
@@ -233,7 +235,7 @@ class BoardModel {
         if (foundCell) {
             foundCell.value = player;
         }else{
-            throw "Can't play on complete column : "+column.num;
+            throw new Error("Can't play on complete column : "+column.num); 
         }
         this.playedCells.push(foundCell);
 
@@ -321,7 +323,7 @@ class BoardModel {
 
         if (isWinning){
             winningCells.push(cell);
-            winningCells.forEach(cell=>cell.isWinning = true);
+            winningCells.forEach(winningCell => winningCell.isWinning = true);
         }
         
         return isWinning;

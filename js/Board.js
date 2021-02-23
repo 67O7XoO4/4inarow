@@ -1,15 +1,14 @@
 
 
-//TODO should be in the board class
 const config = {
-    columnWidth : 65,
-    rowHeight   : 65,
-    cellRadius  : 25,
-    hMargin      : 22,
-    vMargin      : 22,
-    edgeCurve   : 15,
-    boardColor  : "rgb(30, 130, 220)", //#1E82DC
-    fallingSpeed : 30
+    columnWidth     : 65,
+    rowHeight       : 65,
+    cellRadius      : 25,
+    hMargin         : 22,
+    vMargin         : 22,
+    edgeCurve       : 15,
+    boardColor      : "rgb(30, 130, 220)", //#1E82DC
+    fallingSpeed    : 30
 };
 
 
@@ -27,21 +26,6 @@ function getX(column){
 
 function getY(cell){    
     return config.vMargin + cell.num * config.rowHeight +  config.rowHeight/2; 
-}
-
-//from MDN, 
-function rectArrondi(ctx, x, y, largeur, hauteur, rayon) {
-    ctx.beginPath();
-    ctx.moveTo(x, y + rayon);
-    ctx.lineTo(x, y + hauteur - rayon);
-    ctx.quadraticCurveTo(x, y + hauteur, x + rayon, y + hauteur);
-    ctx.lineTo(x + largeur - rayon, y + hauteur);
-    ctx.quadraticCurveTo(x + largeur, y + hauteur, x + largeur, y + hauteur - rayon);
-    ctx.lineTo(x + largeur, y + rayon);
-    ctx.quadraticCurveTo(x + largeur, y, x + largeur - rayon, y);
-    ctx.lineTo(x + rayon,y);
-    ctx.quadraticCurveTo(x, y, x, y + rayon);
-    ctx.fill();
 }
 
 /**
@@ -72,7 +56,7 @@ class Board {
 
         this.resize = ()=>{
             // Clear the canvas and redraw all the board 
-            board.ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
+            board._clearDisplay();
 
             //map the canvas size to the displayed size
             board.canvas.width = board.canvas.parentElement.clientWidth;
@@ -114,92 +98,45 @@ class Board {
 
 
     /**
-     * 
-     */    
-    display(currentPlayer) {
+     * private
+     */
+    _displayBackground(){
+        //from MDN rectArrondi  (ctx, x, y, largeur, hauteur, rayon) 
         let ctx = this.ctx;
-        // Clear the canvas and redraw all the board 
-        ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
 
-        //draw background board
+        let x = this.getXLeft();
+        let y = this.getYBottom();
+        let largeur = this.getInnerWidth();
+        let hauteur = this.getInnerHeight();
+        let rayon = config.edgeCurve;
+
         ctx.fillStyle = config.boardColor;
-        rectArrondi(ctx,
-            this.getXLeft(), 
-            this.getYBottom(), 
-            this.getInnerWidth(),
-            this.getInnerHeight(),
-            config.edgeCurve
-        );
 
-        //display cells
-        this.model.forEachCell((column, cell)=>{
-            
-                let old  =  ctx.globalCompositeOperation ;
-                if (cell.isEmpty() 
-                    || (this.model.getLastPlayedCell() === cell && this.fallingToken)
-                    ){
-                    // empty cell
-                    ctx.globalCompositeOperation = 'destination-out';
-                }else{
-                    //filled cell
-                    ctx.shadowColor = "grey";
-                    ctx.shadowBlur = 4;
-                    ctx.shadowOffsetX = 1;
-                    ctx.shadowOffsetY = 1;
-                    ctx.fillStyle = cell.value.color;    
-                }
-                //draw cell
-                ctx.beginPath();
-                ctx.arc(
-                    getX(column),
-                    getY(cell),
-                    config.cellRadius,
-                    0, 
-                    Math.PI * 2, 
-                    true);    
-        
-                ctx.fill();
-                ctx.globalCompositeOperation = old;
+        ctx.beginPath();
+        ctx.moveTo(x, y + rayon);
+        ctx.lineTo(x, y + hauteur - rayon);
+        ctx.quadraticCurveTo(x, y + hauteur, x + rayon, y + hauteur);
+        ctx.lineTo(x + largeur - rayon, y + hauteur);
+        ctx.quadraticCurveTo(x + largeur, y + hauteur, x + largeur, y + hauteur - rayon);
+        ctx.lineTo(x + largeur, y + rayon);
+        ctx.quadraticCurveTo(x + largeur, y, x + largeur - rayon, y);
+        ctx.lineTo(x + rayon,y);
+        ctx.quadraticCurveTo(x, y, x, y + rayon);
+        ctx.fill();
+    }
 
-                if (cell.isWinning && ! this.fallingToken){
-                    //draw special L&F for winning cells
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-        
-                    ctx.arc(
-                        getX(column),
-                        getY(cell),
-                        config.cellRadius + 1,
-                        0, 
-                        Math.PI * 2, 
-                        true);    
-            
-                    ctx.stroke();
-                }
-            
-                if (this.model.getLastPlayedCell() === cell ){
-                    if (! this.fallingToken){
-                        //draw special L&F for last played cell
-                        ctx.lineWidth = 3;
-                        ctx.beginPath();
-                        ctx.strokeStyle = cell.value.color;
-                        ctx.arc(
-                            getX(column),
-                            getY(cell),
-                            config.cellRadius + 1,
-                            0, 
-                            Math.PI * 2, 
-                            true);    
-                
-                        ctx.stroke();
-                    }else{
+    /**
+     * private
+     */
+    _clearDisplay(){
+        this.ctx.clearRect(0, 0, this.getXRight(), this.getHeight());
+    }
 
-                    }
-                }
-                ctx.shadowColor='rgba(0,0,0,0)';
-        
-        });
-
+    /**
+     * private
+     */
+    _displayFallingToken(){
+        let ctx = this.ctx;
         //display falling token
         if (this.fallingToken){
             let old  =  ctx.globalCompositeOperation ;
@@ -222,12 +159,90 @@ class Board {
             this.fallingToken.y = this.fallingToken.y - config.fallingSpeed;
 
             //stop falling
-            if (getY(this.model.getLastPlayedCell())>this.fallingToken.y){
+            if ( getY(this.model.getLastPlayedCell()) > this.fallingToken.y){
                 this.fallingToken = null;
             } 
         }
         
-        if (! this.fallingToken) this._displaySelectedColumn(currentPlayer);
+    }
+
+    /**
+     * Add a circle around the token
+     * 
+     * private
+     */
+    _displaySpecialCell(column, cell){
+        let ctx = this.ctx;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        ctx.arc(
+            getX(column),
+            getY(cell),
+            config.cellRadius + 1,
+            0, 
+            Math.PI * 2, 
+            true);    
+
+        ctx.stroke();
+    }
+
+    /**
+     * 
+     */    
+    display(currentPlayer) {
+        let ctx = this.ctx;
+        // Clear the canvas and redraw all the board 
+        this._clearDisplay();
+
+        //draw background board
+        this._displayBackground()
+
+        //display cells
+        this.model.forEachCell((column, cell)=>{
+            
+                let old  =  ctx.globalCompositeOperation ;
+                if (cell.isEmpty() 
+                    || (this.model.getLastPlayedCell() === cell && this.fallingToken)
+                    ){
+                    // empty cell
+                    ctx.globalCompositeOperation = 'destination-out';
+                }else{
+                    //filled cell (with a token)
+                    ctx.shadowColor = "grey";
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
+                    ctx.fillStyle = cell.value.color;    
+                    ctx.strokeStyle = cell.value.color;
+                }
+                //draw cell
+                ctx.beginPath();
+                ctx.arc(
+                    getX(column),
+                    getY(cell),
+                    config.cellRadius,
+                    0, 
+                    Math.PI * 2, 
+                    true);    
+        
+                ctx.fill();
+                ctx.globalCompositeOperation = old;
+
+                if (! this.fallingToken){
+
+                    if (cell.isWinning || this.model.getLastPlayedCell() === cell ){
+                        //draw special L&F for winning cells or for last played cell
+                        this._displaySpecialCell(column, cell);
+                    }
+                }
+                ctx.shadowColor='rgba(0,0,0,0)';
+        
+        });
+
+        this._displayFallingToken();
+
+        this._displaySelectedColumn(currentPlayer);
     }
 
 
@@ -244,6 +259,8 @@ class Board {
      * private
      */
     _displaySelectedColumn(currentPlayer){
+        if (this.fallingToken) return ;
+        
         let ctx = this.ctx;
         //show column selection 
         if (this.selectedColnum != null){

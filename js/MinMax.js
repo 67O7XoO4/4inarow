@@ -121,7 +121,7 @@ function minMax(model, playerToBeEvaluated, currentPlayer, currentDepth, interru
         }
         return score;
     }
-};
+}
 
 function headsOrTails() {
     return Math.floor(Math.random() * Math.floor(2));
@@ -140,9 +140,9 @@ function evaluate(model, playerToBeEvaluated){
         //if there is no last played cell, we take the first (empty) cell to evaluate
         if (! lastPlayedCell ) lastPlayedCell = column.getFirstCell();
 
-        let cellScore = evaluateCell(lastPlayedCell, model, playerToBeEvaluated) ;
+        score += evaluateCell(lastPlayedCell, model, playerToBeEvaluated) ;
 
-        return  score += cellScore  ;
+        return  score ;
 
     }, 0);
     

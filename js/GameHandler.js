@@ -25,7 +25,6 @@ class GameHandler {
     }
 
     onOpen(send, remoteManager){
-        //this.send = send;
 
         if(this.isServer){
 

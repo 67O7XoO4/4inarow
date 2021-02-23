@@ -71,8 +71,6 @@ class HumanRemoteStrategy  {
             }
         }
     }
-
-
-};
+}
 
 export {HumanRemoteStrategy};
