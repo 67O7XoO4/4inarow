@@ -1,7 +1,7 @@
 <template>
 
   <div v-show="remoteManager.isConnected && remoteManager.getMsgHandler()"
-        class="msg-box md-layout-item md-medium-size-100 md-large-size-66 md-xlarge-size-50">
+        class="msg-box md-elevation-1 md-layout-item md-medium-size-100 md-large-size-66 md-xlarge-size-50">
     <div  class="msg-list">
       <div  v-for="msg in remoteManager.getMsgHandler().msgList" :class="{'msg-sent' : msg.type == 'sent', 'msg-received' : msg.type == 'received'}"  >{{ msg.msg }}</div>
     </div>
@@ -37,7 +37,11 @@
 
 .msg-box{
     min-height: 0;
+    background-color: white;
 } 
+.msg-list{
+	padding: 0 10px 0 10px;
+}
 
 .msg-box .md-field .md-input{
     padding-right:36px
@@ -49,7 +53,7 @@
 
 .msg-sent{
     text-align: right;
-    color: gray;
+    color: rgba(0, 0, 0, 0.6);
     font-size: 12px;
 }
 

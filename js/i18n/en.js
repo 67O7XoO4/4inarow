@@ -43,6 +43,7 @@ export default {
     remoteExplanation : 'This will create a specific URL that must be provided to the remote player',
     remoteTitle : 'Invite a remote player',
     remoteConnected : 'Remote player is connected',
+    remoteGameClosed : 'The remote game has been stopped',
 
     sendMsg : 'Send message',
     settings :"Settings",

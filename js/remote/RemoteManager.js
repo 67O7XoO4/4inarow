@@ -61,6 +61,10 @@ class RemoteManager {
         return this.handlers['MsgHandler'];
     }
 
+    onClose(closeCallBack){
+        this.closeCallBack = closeCallBack;
+    }
+
     /**
      * 
      * A Handler manage data exchange with the remote. The remote must a Handler with the same id.
@@ -206,6 +210,10 @@ class RemoteManager {
         this.waiting = false;
         if (this.isConnected) {
             this.isConnected = false;
+            if (this.closeCallBack){
+                this.closeCallBack();
+                this.closeCallBack = null;
+            }
 
             this.$conn.send({
                 handler : REMOTE_MANAGER,

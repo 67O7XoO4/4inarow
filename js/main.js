@@ -219,7 +219,10 @@ var fourInARowApp = new Vue({
                 .then(()=>{
                     this.dialogRemote.show = false;
                     displayMsg('remoteConnected');
-
+                    remoteManager.onClose(()=>{
+                        displayMsg('remoteGameClosed');    
+                    });
+        
                     game.start();
                 });
 
@@ -281,6 +284,9 @@ window.onload = () => {
             displayMsg('connectedToRemoteGame');
 
             remoteManager.addHandler(new GameHandler.GameHandler(game, false)); 
+            remoteManager.onClose(()=>{
+                displayMsg('remoteGameClosed');    
+            });
 
         },(msg)=>{
             if (msg)  displayMsg(msg);

@@ -40,9 +40,10 @@ export default {
     playerWin : 'Le joueur {name} gagne !!',
 
     RED : 'ROUGE',
-    remoteExplanation : 'Cela va créer une URL spécifique qui devra être fournie à joueur distant',
+    remoteExplanation : 'Cela va créer une URL spécifique qui devra être fournie au joueur distant',
     remoteTitle : 'Inviter un joueur distant',
     remoteConnected : 'Un joueur distant est connecté',
+    remoteGameClosed : 'La partie distante a été arrêtée',
 
     sendMsg : 'Envoyer un message',
     settings :"Réglages",
