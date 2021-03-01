@@ -66,8 +66,8 @@ actions[Game.EVENTS.PLAYER_SUSPENDED] = ()=>{
 let settings = new Settings.Settings({
     timerEnabled    : true,
     lang            : navigator.language,
-    red             : { isHuman       : true , level : 3},
-    yellow          : { isHuman       : false, level : 3},
+    red             : { isHuman       : true , level : 4},
+    yellow          : { isHuman       : false, level : 4},
     board           : {
         nbCellsToWin    : 4,
         nbRows          : 6,

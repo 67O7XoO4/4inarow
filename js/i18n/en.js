@@ -19,12 +19,11 @@ export default {
 
     drawGame : 'Draw game :(',
 
-    level_3 :"Newbie",
+    level_2 :"Newbie",
     level_4 :"Rookie",
-    level_5 :"Trainee",
-    level_6 :"Professional",
-    level_7 :"Major",
-    level_8 :"Grand master",
+    level_6 :"Trainee",
+    level_8 :"Professional",
+    level_10 :"Grand master",
 
     nbCellsToWin : 'Numbers of aligned tokens to win',
     nbColumns : 'Numbers of columns',

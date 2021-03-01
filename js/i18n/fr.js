@@ -19,12 +19,11 @@ export default {
 
     drawGame : 'Match nul :(',
 
-    level_3 :"Débutant",
+    level_2 :"Débutant",
     level_4 :"Novice",
-    level_5 :"Recrue",
-    level_6 :"Professionel",
-    level_7 :"Commandant",
-    level_8 :"Grand maître",
+    level_6 :"Recrue",
+    level_8 :"Professionel",
+    level_10 :"Grand maître",
 
     nbCellsToWin : 'Nombre de jetons alignés pour gagner',
     nbColumns : 'Nombres de colonnes',
